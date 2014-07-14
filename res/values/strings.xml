@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">feed.me</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="empty_string">Check Internet Connection</string>
+    <string name="start_widget">Launch Widget</string>
+    <string name="theme_string">Select Theme</string>
+    <string name="theme_update_interval">Select Update Interval</string>
+    <string name="max_history">Select Max History Items</string>
+    <string name="max_per_history">Select Max Articles per History Item</string>
+    <string name="history_hint">1 - 15</string>
+    <string name="max_hint">1 - 4</string>
+
+</resources>

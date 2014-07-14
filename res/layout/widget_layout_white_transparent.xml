@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/ListLayout_white_transparent"
+        android:layout_width="fill_parent"
+        android:layout_height="45dip"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="3dip"
+        android:background="@android:color/transparent"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/name_view_white_transparent"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="6dip"
+            android:layout_weight="0.6"
+            android:fontFamily="sans-serif-condensed"
+            android:gravity="center_vertical"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="visible" />
+
+        <TextView
+            android:id="@+id/loading_view_white_transparent"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2"
+            android:fontFamily="sans-serif-thin"
+            android:gravity="center"
+            android:textColor="#000000"
+            android:textSize="10sp"
+            android:textStyle="italic"
+            android:visibility="visible" />
+
+        <ImageButton
+            android:id="@+id/feedButton_white_transparent"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_launcher_dark" />
+    </LinearLayout>
+    <!-- ListView to be shown on widget -->
+
+    <ListView
+        android:id="@+id/listViewWidget_white_transparent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="3dip"
+        android:scrollbars="none" />
+
+    <!-- Empty view is show if list items are empty -->
+
+    <TextView
+        android:id="@+id/empty_view_white_transparent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="@string/empty_string"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
+        android:visibility="gone" />
+
+</LinearLayout>
