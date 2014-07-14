@@ -1,4 +1,4 @@
-appwidget-listview
+Feed.Me
 ==================
 
-AppWidget with ListView works from HoneyComb onwards. 
+Android Appwidget which reads your browser search history and aggregates news related to searched topics.
