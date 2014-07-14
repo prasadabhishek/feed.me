@@ -2,6 +2,7 @@ package com.feed.me;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.json.JSONArray;
@@ -11,10 +12,13 @@ import org.json.JSONObject;
 import android.app.ProgressDialog;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -104,6 +108,8 @@ public class RemoteFetchService extends Service {
 		MaxLimit = getPref(this, "max_" + appWidgetId);
 		noOfTopics = 0;
 		history = getBrowserHistory();
+		CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
+		sql.addtoDB(history);
 		seed = System.nanoTime();
 		fetchDataFromWeb();
 		return super.onStartCommand(intent, flags, startId);
@@ -305,4 +311,102 @@ public class RemoteFetchService extends Service {
 		this.stopSelf();
 	}
 
+	private class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
+		String TABLE_NAME = "History";
+		String COLLUMN_ROW_ID = "Id";
+		String COLLUMN_TOPIC = "Topic";
+		String COLLUMN_FLAG = "Flag";
+		String COLLUMN_TIMESTAMP = "TimeStamp";
+
+		private static final String DATABASE_NAME = "feedme.db";
+		private static final int DATABASE_VERSION = 1;
+		SQLiteDatabase mDb;
+
+		public CustomSQLiteOpenHelper(Context context) {
+			super(context, DATABASE_NAME, null, DATABASE_VERSION);
+			mCtx = context;
+		}
+
+		// TODO: override the constructor and other methods for the parent class
+		@Override
+		public void onCreate(SQLiteDatabase db) {
+			// the SQLite query string that will create our 3 column database
+			// table.
+			String newTableQueryString = "create table " + TABLE_NAME + " ("
+					+ COLLUMN_ROW_ID
+					+ " integer primary key autoincrement not null,"
+					+ COLLUMN_TOPIC + " text," + COLLUMN_FLAG + " integer,"
+					+ COLLUMN_TIMESTAMP + " integer" + ");";
+			// execute the query string to the database.
+			try {
+				db.execSQL(newTableQueryString);
+			} catch (Exception e) {
+				Log.e("DB Error while creating Tables", e.toString());
+			}
+		}
+
+		@Override
+		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			// NOTHING TO DO HERE. THIS IS THE ORIGINAL DATABASE VERSION.
+			// OTHERWISE, YOU WOULD SPECIFIY HOW TO UPGRADE THE DATABASE
+			// FROM OLDER VERSIONS.
+			String newTableQueryString = "create table " + TABLE_NAME + " ("
+					+ COLLUMN_ROW_ID
+					+ " integer primary key autoincrement not null,"
+					+ COLLUMN_TOPIC + " text," + COLLUMN_FLAG + " integer,"
+					+ COLLUMN_TIMESTAMP + " integer" + ");";
+			// execute the query string to the database.
+			try {
+				db.execSQL(newTableQueryString);
+			} catch (Exception e) {
+				Log.e("DB Error while creating Tables", e.toString());
+			}
+		}
+
+		public void addtoDB(ArrayList<String> list) {
+			mDb = new CustomSQLiteOpenHelper(mCtx).getWritableDatabase();
+			for (int i = 0; i < list.size(); i++) {
+				ContentValues values = new ContentValues();
+				// this is how you add a value to a ContentValues object
+				// we are passing in a key string and a value string
+				// each time
+				values.put(COLLUMN_TOPIC, list.get(i));
+				values.put(COLLUMN_FLAG, 1);
+				values.put(COLLUMN_TIMESTAMP,
+						(int) (new Date().getTime() / 1000));
+				// ask the database object to insert the new data
+				try {
+					mDb.insert(TABLE_NAME, null, values);
+				} catch (Exception e) {
+					Log.e("DB ERROR", e.toString()); // prints the error
+														// message to
+														// the log
+				}
+			}
+			mDb.close();
+		}
+
+		public void checkFlag(ArrayList<String> list) {
+			mDb = new CustomSQLiteOpenHelper(mCtx).getWritableDatabase();
+			for (int i = 0; i < list.size(); i++) {
+				ContentValues values = new ContentValues();
+				// this is how you add a value to a ContentValues object
+				// we are passing in a key string and a value string
+				// each time
+				values.put(COLLUMN_TOPIC, list.get(i));
+				values.put(COLLUMN_FLAG, 1);
+				values.put(COLLUMN_TIMESTAMP,
+						(int) (new Date().getTime() / 1000));
+				// ask the database object to insert the new data
+				try {
+					mDb.insert(TABLE_NAME, null, values);
+				} catch (Exception e) {
+					Log.e("DB ERROR", e.toString()); // prints the error
+														// message to
+														// the log
+				}
+			}
+			mDb.close();
+		}
+	}
 }

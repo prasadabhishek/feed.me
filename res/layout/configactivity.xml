@@ -7,8 +7,7 @@
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:layout_weight="0.2"
+        android:layout_height="wrap_content" > <!-- android:layout_weight="0.10" -->
         android:orientation="horizontal" >
 
         <TextView
@@ -27,14 +26,13 @@
             android:id="@+id/theme_spinner"
             android:layout_width="0dip"
             android:layout_height="wrap_content"
-            android:layout_weight="0.3" />
+            android:layout_weight="0.30" />
     </LinearLayout>
 
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:layout_weight="0.2"
+        android:layout_height="wrap_content" > <!-- android:layout_weight="0.10" -->
         android:orientation="horizontal" >
 
         <TextView
@@ -59,8 +57,7 @@
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:layout_weight="0.2"
+        android:layout_height="wrap_content" > <!-- android:layout_weight="0.10" -->
         android:orientation="horizontal" >
 
         <TextView
@@ -77,9 +74,8 @@
 
         <EditText
             android:id="@+id/max_items_from_history"
-            android:layout_width="0dip"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.3"
             android:hint="@string/history_hint"
             android:inputType="number" />
     </LinearLayout>
@@ -87,8 +83,7 @@
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:layout_weight="0.2"
+        android:layout_height="wrap_content" > <!-- android:layout_weight="0.10" -->
         android:orientation="horizontal" >
 
         <TextView
@@ -105,18 +100,18 @@
 
         <EditText
             android:id="@+id/max_items_per_history"
-            android:layout_width="0dip"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.3"
             android:hint="@string/max_hint"
             android:inputType="number" />
     </LinearLayout>
 
     <Button
         android:id="@+id/widgetStartButton"
-        android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:layout_weight="0.2"
-        android:text="@string/start_widget" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/start_widget" >
+    </Button>
 
 </LinearLayout>

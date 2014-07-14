@@ -34,8 +34,6 @@ public class ConfigActivity extends Activity implements OnClickListener,
 	TextView HistoryText;
 	TextView MaxText;
 
-
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -92,8 +90,16 @@ public class ConfigActivity extends Activity implements OnClickListener,
 
 	@Override
 	public void onClick(View v) {
-		if (v.getId() == R.id.widgetStartButton)
-			startWidget();
+		if (HistoryText.getText().toString().isEmpty()) {
+			HistoryText.setText("");
+			HistoryText.setError("Please Enter Value 1 - 15");
+		} else if (MaxText.getText().toString().isEmpty()) {
+			MaxText.setText("");
+			MaxText.setError("Please Enter Value 1 - 4");
+		} else {
+			if (v.getId() == R.id.widgetStartButton)
+				startWidget();
+		}
 	}
 
 	/**
