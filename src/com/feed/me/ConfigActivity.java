@@ -90,15 +90,21 @@ public class ConfigActivity extends Activity implements OnClickListener,
 
 	@Override
 	public void onClick(View v) {
-		if (HistoryText.getText().toString().isEmpty()) {
-			HistoryText.setText("");
-			HistoryText.setError("Please Enter Value 1 - 15");
-		} else if (MaxText.getText().toString().isEmpty()) {
-			MaxText.setText("");
-			MaxText.setError("Please Enter Value 1 - 4");
-		} else {
-			if (v.getId() == R.id.widgetStartButton)
+		if (v.getId() == R.id.widgetStartButton) {
+			if (HistoryText.getText().toString().isEmpty()) {
+				HistoryText.setText("");
+				HistoryText.setError("Please Enter Value 1 - 15");
+			} else if (MaxText.getText().toString().isEmpty()) {
+				MaxText.setText("");
+				MaxText.setError("Please Enter Value 1 - 4");
+			} else {
 				startWidget();
+			}
+		}
+		if (v.getId() == R.id.customize_link) {
+			Intent intent;
+			intent = new Intent(this, HistoryActivity.class);
+			startActivity(intent);
 		}
 	}
 

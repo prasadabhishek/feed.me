@@ -55,6 +55,7 @@
             Configuration activity which gets launched  on widget being
             placed on homescreen for first time
         -->
+        <activity android:name="com.feed.me.HistoryActivity" />
         <activity android:name="com.feed.me.ConfigActivity" >
 
             <!--

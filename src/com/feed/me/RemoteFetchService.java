@@ -35,7 +35,6 @@ public class RemoteFetchService extends Service {
 
 	private int appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 	private AQuery aquery;
-	private String remoteJsonUrl = "http://laaptu.files.wordpress.com/2013/07/widgetlist.key";
 	Context mCtx = this;
 	private String TAG_ENTRIES = "entries";
 	private String TAG_RESULTS = "results";
