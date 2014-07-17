@@ -1,8 +1,10 @@
 package com.feed.me;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 
 import com.feed.me.R;
 
@@ -19,6 +21,14 @@ public class MainActivity extends Activity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		Intent intent;
+		intent = new Intent(this, HistoryActivity.class);
+		startActivity(intent);
+		return super.onOptionsItemSelected(item);
 	}
 
 }

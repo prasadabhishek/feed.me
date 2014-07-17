@@ -178,11 +178,12 @@ public class RemoteFetchService extends Service {
 
 		@Override
 		protected String doInBackground(String... params) {
-			if (listItemList.size() < histLength * 2) {
-				for (int j = 0; j < histLength; j++) {
-					if (!checkCache.containsKey(history.get(j))) {
-						checkCache.put(history.get(j), "done");
-						try {
+			try {
+				if (listItemList.size() < histLength * 2) {
+					for (int j = 0; j < histLength; j++) {
+						if (!checkCache.containsKey(history.get(j))) {
+							checkCache.put(history.get(j), "done");
+
 							Log.d("Thread ",
 									"History Item " + String.valueOf(j) + " "
 											+ String.valueOf(appWidgetId) + " "
@@ -194,14 +195,16 @@ public class RemoteFetchService extends Service {
 											+ "v=1.0&q=" + history.get(j)
 											+ "&userip=INSERT-USER-IP",
 									JSONObject.class, this, "jsonCallback");
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							Log.d("Thread ", "Done");
 						}
-						Log.d("Thread ", "Done");
 					}
 				}
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
+
 			return null;
 		}
 
@@ -314,7 +317,7 @@ public class RemoteFetchService extends Service {
 		String TABLE_NAME = "History";
 		String COLLUMN_ROW_ID = "Id";
 		String COLLUMN_TOPIC = "Topic";
-		String COLLUMN_FLAG = "Flag";
+		String COLLUMN_WIDGET_ID = "WidgetId";
 		String COLLUMN_TIMESTAMP = "TimeStamp";
 		String SELECTED_TABLE_NAME = "Selected_History";
 
@@ -351,7 +354,7 @@ public class RemoteFetchService extends Service {
 				// we are passing in a key string and a value string
 				// each time
 				values.put(COLLUMN_TOPIC, list.get(i));
-				values.put(COLLUMN_FLAG, 1);
+				values.put(COLLUMN_WIDGET_ID, appWidgetId);
 				values.put(COLLUMN_TIMESTAMP,
 						(int) (new Date().getTime() / 1000));
 				// ask the database object to insert the new data
@@ -371,8 +374,10 @@ public class RemoteFetchService extends Service {
 			mDb = new CustomSQLiteOpenHelper(mCtx).getWritableDatabase();
 			Cursor cursor = null;
 			try {
-				cursor = mDb.rawQuery("SELECT * FROM " + SELECTED_TABLE_NAME,
-						null);
+				cursor = mDb.rawQuery(
+						"SELECT * FROM " + SELECTED_TABLE_NAME + " WHERE "
+								+ COLLUMN_WIDGET_ID + " = "
+								+ String.valueOf(appWidgetId), null);
 			} catch (Exception e) {
 				Log.e("DB Error getRecentHistory", e.toString());
 			}

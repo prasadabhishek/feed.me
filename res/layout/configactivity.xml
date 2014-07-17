@@ -18,6 +18,7 @@
             android:layout_marginLeft="3dip"
             android:layout_marginTop="5dip"
             android:layout_weight="0.7"
+            android:fontFamily="sans-serif-condensed"
             android:text="@string/theme_string"
             android:textColor="#ffffff"
             android:textSize="14sp" />
@@ -43,6 +44,7 @@
             android:layout_marginLeft="3dip"
             android:layout_marginTop="5dip"
             android:layout_weight="0.7"
+            android:fontFamily="sans-serif-condensed"
             android:text="@string/theme_update_interval"
             android:textColor="#ffffff"
             android:textSize="14sp" />
@@ -68,6 +70,7 @@
             android:layout_marginLeft="3dip"
             android:layout_marginTop="5dip"
             android:layout_weight="0.7"
+            android:fontFamily="sans-serif-condensed"
             android:text="@string/max_history"
             android:textColor="#ffffff"
             android:textSize="14sp" />
@@ -94,6 +97,7 @@
             android:layout_marginLeft="3dip"
             android:layout_marginTop="5dip"
             android:layout_weight="0.7"
+            android:fontFamily="sans-serif-condensed"
             android:text="@string/max_per_history"
             android:textColor="#ffffff"
             android:textSize="14sp" />
@@ -120,6 +124,7 @@
             android:layout_marginLeft="3dip"
             android:layout_marginTop="5dip"
             android:clickable="true"
+            android:fontFamily="sans-serif-condensed"
             android:onClick="onClick"
             android:text="@string/customize"
             android:textColor="#ffffff"

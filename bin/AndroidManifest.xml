@@ -40,6 +40,7 @@
                 <action android:name="com.wordpress.laaptu.DATA_FETCHED" />
                 <action android:name="com.refresh.widget.CLOCK_WIDGET_UPDATE" >
                 </action>
+                <action android:name="com.feed.me.history" />
             </intent-filter>
             <!-- linking up xml file of appwidget-provider to AppWidgetProvider -->
             <meta-data

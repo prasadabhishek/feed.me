@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">feed.me</string>
+    <string name="edit_history">Edit History</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Go to your Homescreen and Add Feed.Me Widget</string>
     <string name="empty_string">Check Internet Connection</string>

@@ -31,13 +31,22 @@
             android:id="@+id/loading_view"
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:layout_weight="0.2"
+            android:layout_weight="0.0"
             android:fontFamily="sans-serif-thin"
             android:gravity="center"
             android:textColor="#ffffff"
             android:textSize="10sp"
             android:textStyle="italic"
             android:visibility="visible" />
+
+        <ImageButton
+            android:id="@+id/refreshButton"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:src="@drawable/refresh" />
 
         <ImageButton
             android:id="@+id/feedButton"

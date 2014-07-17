@@ -102,6 +102,7 @@ public class HistoryActivity extends ListActivity {
 	public void onBackPressed() {
 		ArrayList<String> hist = new ArrayList<String>();
 		setPref(mCtx, "history_" + appWidgetId, adapter.getCount());
+		setPref(mCtx, "history_count_edited_" + appWidgetId, 1);
 		for (int i = 0; i < adapter.getCount(); i++) {
 			CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
 			sql.insertRow(adapter.getItem(i));
@@ -122,7 +123,7 @@ public class HistoryActivity extends ListActivity {
 				Browser.BookmarkColumns.DATE + " DESC");
 		mCur.moveToFirst();
 		if (mCur.moveToFirst() && mCur.getCount() > 0) {
-			while (mCur.isAfterLast() == false && count < max_history) {
+			while (mCur.isAfterLast() == false) {
 				title = mCur.getString(Browser.HISTORY_PROJECTION_TITLE_INDEX);
 				if (title.contains(SEARCH_TOKEN)) {
 					temp = title.subSequence(0,
@@ -176,7 +177,7 @@ public class HistoryActivity extends ListActivity {
 		String TABLE_NAME = "Selected_History";
 		String COLLUMN_ROW_ID = "Id";
 		String COLLUMN_TOPIC = "Topic";
-		String COLLUMN_FLAG = "Flag";
+		String COLLUMN_WIDGET_ID = "WidgetId";
 		String COLLUMN_TIMESTAMP = "TimeStamp";
 
 		private static final String DATABASE_NAME = "feedme.db";
@@ -214,7 +215,7 @@ public class HistoryActivity extends ListActivity {
 			// we are passing in a key string and a value string
 			// each time
 			values.put(COLLUMN_TOPIC, val);
-			values.put(COLLUMN_FLAG, 1);
+			values.put(COLLUMN_WIDGET_ID, appWidgetId);
 			values.put(COLLUMN_TIMESTAMP, (int) (new Date().getTime() / 1000));
 			// ask the database object to insert the new data
 			try {
@@ -231,7 +232,9 @@ public class HistoryActivity extends ListActivity {
 			mDb = new CustomSQLiteOpenHelper(mCtx).getWritableDatabase();
 
 			try {
-				mDb.execSQL("DELETE FROM " + TABLE_NAME);
+				mDb.execSQL("DELETE FROM " + TABLE_NAME + " WHERE "
+						+ COLLUMN_WIDGET_ID + " = "
+						+ String.valueOf(appWidgetId));
 			} catch (Exception e) {
 				Log.e("DB ERROR", e.toString()); // prints the error
 													// message to

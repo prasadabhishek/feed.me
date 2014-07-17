@@ -38,6 +38,7 @@ public class WidgetProvider extends AppWidgetProvider {
 	public static final String EXTRA_ITEM = "com.feed.me.EXTRA_ITEM";
 	public static final String URL_ACTION = "com.feed.me.URL_ACTION";
 	public static String MANIFEST_DEFINED_STRING = "com.refresh.widget";
+	public static final String FLAG_HISTORY = "com.feed.me.history";
 	final static String WIDGET_UPDATE_ACTION = "UPDATE_WIDGET";
 	public static int randomNumber;
 	public static final String CLOCK_WIDGET_UPDATE = "com.refresh.widget.CLOCK_WIDGET_UPDATE";
@@ -256,7 +257,7 @@ public class WidgetProvider extends AppWidgetProvider {
 						PendingIntent.FLAG_UPDATE_CURRENT);
 
 				if (themeNumber == 1)
-					remoteViews.setOnClickPendingIntent(R.id.feedButton,
+					remoteViews.setOnClickPendingIntent(R.id.refreshButton,
 							pendingServiceIntent);
 				else if (themeNumber == 2)
 					remoteViews.setOnClickPendingIntent(
@@ -270,6 +271,16 @@ public class WidgetProvider extends AppWidgetProvider {
 							pendingServiceIntent);
 
 				Log.d("SETTING PENDING INTENT", "feedbutton");
+
+				Intent historyIntent = new Intent(context, WidgetProvider.class);
+				historyIntent.setAction(WidgetProvider.FLAG_HISTORY);
+				historyIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+						appWidgetIds[i]);
+				PendingIntent HistoryIntent = PendingIntent.getBroadcast(
+						context, 0, historyIntent,
+						PendingIntent.FLAG_UPDATE_CURRENT);
+				remoteViews.setOnClickPendingIntent(R.id.feedButton,
+						HistoryIntent);
 
 				appWidgetManager.updateAppWidget(appWidgetIds[i], remoteViews);
 			}
@@ -415,6 +426,13 @@ public class WidgetProvider extends AppWidgetProvider {
 			i.setData(Uri.parse(url));
 			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			context.startActivity(i);
+		}
+		if (intent.getAction().equals(FLAG_HISTORY)) {
+			Intent historyintent = new Intent(context, HistoryActivity.class);
+			historyintent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+					appWidgetId);
+			historyintent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			context.startActivity(historyintent);
 		}
 		if (CLOCK_WIDGET_UPDATE.equals(intent.getAction())) {
 			Log.d("onReceive", "Clock update");

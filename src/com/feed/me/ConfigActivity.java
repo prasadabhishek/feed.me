@@ -80,6 +80,9 @@ public class ConfigActivity extends Activity implements OnClickListener,
 
 		HistoryText.addTextChangedListener(this);
 		MaxText.addTextChangedListener(this);
+
+		CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
+		sql.getWritableDatabase();
 	}
 
 	/**
@@ -247,11 +250,19 @@ public class ConfigActivity extends Activity implements OnClickListener,
 
 	}
 
+	@Override
+	public void onResume() {
+		super.onResume();
+		if (getPref(mCtx, "history_count_edited_" + String.valueOf(appWidgetId)) == 1)
+			HistoryText.setText(String.valueOf(getPref(mCtx, "history_"
+					+ appWidgetId)));
+	}
+
 	private class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
 		String TABLE_NAME = "History";
 		String COLLUMN_ROW_ID = "Id";
 		String COLLUMN_TOPIC = "Topic";
-		String COLLUMN_FLAG = "Flag";
+		String COLLUMN_WIDGET_ID = "WidgetId";
 		String COLLUMN_TIMESTAMP = "TimeStamp";
 		String SELECTED_TABLE_NAME = "Selected_History";
 
@@ -272,13 +283,13 @@ public class ConfigActivity extends Activity implements OnClickListener,
 			String newTableQueryString = "create table " + TABLE_NAME + " ("
 					+ COLLUMN_ROW_ID
 					+ " integer primary key autoincrement not null,"
-					+ COLLUMN_TOPIC + " text," + COLLUMN_FLAG + " integer,"
-					+ COLLUMN_TIMESTAMP + " integer" + ");";
+					+ COLLUMN_TOPIC + " text," + COLLUMN_WIDGET_ID
+					+ " integer," + COLLUMN_TIMESTAMP + " integer" + ");";
 			String newSelectedTableQueryString = "create table "
 					+ SELECTED_TABLE_NAME + " (" + COLLUMN_ROW_ID
 					+ " integer primary key autoincrement not null,"
-					+ COLLUMN_TOPIC + " text," + COLLUMN_FLAG + " integer,"
-					+ COLLUMN_TIMESTAMP + " integer" + ");";
+					+ COLLUMN_TOPIC + " text," + COLLUMN_WIDGET_ID
+					+ " integer," + COLLUMN_TIMESTAMP + " integer" + ");";
 			// execute the query string to the database.
 			try {
 				db.execSQL(newTableQueryString);
@@ -296,13 +307,13 @@ public class ConfigActivity extends Activity implements OnClickListener,
 			String newTableQueryString = "create table " + TABLE_NAME + " ("
 					+ COLLUMN_ROW_ID
 					+ " integer primary key autoincrement not null,"
-					+ COLLUMN_TOPIC + " text," + COLLUMN_FLAG + " integer,"
-					+ COLLUMN_TIMESTAMP + " integer" + ");";
+					+ COLLUMN_TOPIC + " text," + COLLUMN_WIDGET_ID
+					+ " integer," + COLLUMN_TIMESTAMP + " integer" + ");";
 			String newSelectedTableQueryString = "create table "
 					+ SELECTED_TABLE_NAME + " (" + COLLUMN_ROW_ID
 					+ " integer primary key autoincrement not null,"
-					+ COLLUMN_TOPIC + " text," + COLLUMN_FLAG + " integer,"
-					+ COLLUMN_TIMESTAMP + " integer" + ");";
+					+ COLLUMN_TOPIC + " text," + COLLUMN_WIDGET_ID
+					+ " integer," + COLLUMN_TIMESTAMP + " integer" + ");";
 			// execute the query string to the database.
 			try {
 				db.execSQL(newTableQueryString);
@@ -311,6 +322,12 @@ public class ConfigActivity extends Activity implements OnClickListener,
 				Log.e("DB Error while creating Tables", e.toString());
 			}
 		}
+	}
 
+	public static Integer getPref(Context context, String key) {
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		Integer count = prefs.getInt(key, 0);
+		return count;
 	}
 }
