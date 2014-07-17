@@ -1,10 +1,17 @@
 package com.feed.me;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -13,6 +20,7 @@ import android.graphics.Paint.Align;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -38,7 +46,7 @@ public class ConfigActivity extends Activity implements OnClickListener,
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.configactivity);
-
+		setPref(mCtx, "history_cutomized_" + String.valueOf(appWidgetId), 0);
 		setResult(Activity.RESULT_CANCELED);
 		Spinner themespinner = (Spinner) findViewById(R.id.theme_spinner);
 		themespinner.setOnItemSelectedListener(this);
@@ -104,6 +112,7 @@ public class ConfigActivity extends Activity implements OnClickListener,
 		if (v.getId() == R.id.customize_link) {
 			Intent intent;
 			intent = new Intent(this, HistoryActivity.class);
+			intent.putExtras(getIntent().getExtras());
 			startActivity(intent);
 		}
 	}
@@ -114,6 +123,7 @@ public class ConfigActivity extends Activity implements OnClickListener,
 	 */
 	private void startWidget() {
 		setBoolPref(mCtx, "ready_" + appWidgetId, Boolean.TRUE);
+		setPref(mCtx, "history_cutomized_" + String.valueOf(appWidgetId), 0);
 		new WidgetProvider().onUpdate(this, AppWidgetManager.getInstance(this),
 				new int[] { appWidgetId });
 		// this intent is essential to show the widget
@@ -195,27 +205,31 @@ public class ConfigActivity extends Activity implements OnClickListener,
 	@Override
 	public void afterTextChanged(Editable s) {
 		// TODO Auto-generated method stub
-		if (!HistoryText.getText().toString().isEmpty()) {
-			String history = HistoryText.getText().toString();
-			if (Integer.valueOf(history) > 15 || Integer.valueOf(history) < 1) {
-				Toast.makeText(mCtx, "Please Enter Value 1 - 15",
-						Toast.LENGTH_LONG);
-				HistoryText.setText("");
-				HistoryText.setError("Please Enter Value 1 - 15");
-			} else {
-				setPref(mCtx, "history_" + appWidgetId,
-						Integer.valueOf(history));
+		if (getCurrentFocus().getId() == R.id.max_items_from_history) {
+			if (!HistoryText.getText().toString().isEmpty()) {
+				String history = HistoryText.getText().toString();
+				if (Integer.valueOf(history) > 15
+						|| Integer.valueOf(history) < 1) {
+					Toast.makeText(mCtx, "Please Enter Value 1 - 15",
+							Toast.LENGTH_LONG);
+					HistoryText.setText("");
+					HistoryText.setError("Please Enter Value 1 - 15");
+				} else {
+					setPref(mCtx, "history_" + appWidgetId,
+							Integer.valueOf(history));
+				}
 			}
-		}
-		if (!MaxText.getText().toString().isEmpty()) {
-			String max = MaxText.getText().toString();
-			if (Integer.valueOf(max) > 4 || Integer.valueOf(max) < 1) {
-				Toast.makeText(mCtx, "Please Enter Value 1 - 4",
-						Toast.LENGTH_LONG);
-				MaxText.setText("");
-				MaxText.setError("Please Enter Value 1 - 4");
-			} else {
-				setPref(mCtx, "max_" + appWidgetId, Integer.valueOf(max));
+		} else {
+			if (!MaxText.getText().toString().isEmpty()) {
+				String max = MaxText.getText().toString();
+				if (Integer.valueOf(max) > 4 || Integer.valueOf(max) < 1) {
+					Toast.makeText(mCtx, "Please Enter Value 1 - 4",
+							Toast.LENGTH_LONG);
+					MaxText.setText("");
+					MaxText.setError("Please Enter Value 1 - 4");
+				} else {
+					setPref(mCtx, "max_" + appWidgetId, Integer.valueOf(max));
+				}
 			}
 		}
 	}
@@ -230,6 +244,73 @@ public class ConfigActivity extends Activity implements OnClickListener,
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count) {
 		// TODO Auto-generated method stub
+
+	}
+
+	private class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
+		String TABLE_NAME = "History";
+		String COLLUMN_ROW_ID = "Id";
+		String COLLUMN_TOPIC = "Topic";
+		String COLLUMN_FLAG = "Flag";
+		String COLLUMN_TIMESTAMP = "TimeStamp";
+		String SELECTED_TABLE_NAME = "Selected_History";
+
+		private static final String DATABASE_NAME = "feedme.db";
+		private static final int DATABASE_VERSION = 1;
+		SQLiteDatabase mDb;
+
+		public CustomSQLiteOpenHelper(Context context) {
+			super(context, DATABASE_NAME, null, DATABASE_VERSION);
+			mCtx = context;
+		}
+
+		// TODO: override the constructor and other methods for the parent class
+		@Override
+		public void onCreate(SQLiteDatabase db) {
+			// the SQLite query string that will create our 3 column database
+			// table.
+			String newTableQueryString = "create table " + TABLE_NAME + " ("
+					+ COLLUMN_ROW_ID
+					+ " integer primary key autoincrement not null,"
+					+ COLLUMN_TOPIC + " text," + COLLUMN_FLAG + " integer,"
+					+ COLLUMN_TIMESTAMP + " integer" + ");";
+			String newSelectedTableQueryString = "create table "
+					+ SELECTED_TABLE_NAME + " (" + COLLUMN_ROW_ID
+					+ " integer primary key autoincrement not null,"
+					+ COLLUMN_TOPIC + " text," + COLLUMN_FLAG + " integer,"
+					+ COLLUMN_TIMESTAMP + " integer" + ");";
+			// execute the query string to the database.
+			try {
+				db.execSQL(newTableQueryString);
+				db.execSQL(newSelectedTableQueryString);
+			} catch (Exception e) {
+				Log.e("DB Error while creating Tables", e.toString());
+			}
+		}
+
+		@Override
+		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			// NOTHING TO DO HERE. THIS IS THE ORIGINAL DATABASE VERSION.
+			// OTHERWISE, YOU WOULD SPECIFIY HOW TO UPGRADE THE DATABASE
+			// FROM OLDER VERSIONS.
+			String newTableQueryString = "create table " + TABLE_NAME + " ("
+					+ COLLUMN_ROW_ID
+					+ " integer primary key autoincrement not null,"
+					+ COLLUMN_TOPIC + " text," + COLLUMN_FLAG + " integer,"
+					+ COLLUMN_TIMESTAMP + " integer" + ");";
+			String newSelectedTableQueryString = "create table "
+					+ SELECTED_TABLE_NAME + " (" + COLLUMN_ROW_ID
+					+ " integer primary key autoincrement not null,"
+					+ COLLUMN_TOPIC + " text," + COLLUMN_FLAG + " integer,"
+					+ COLLUMN_TIMESTAMP + " integer" + ");";
+			// execute the query string to the database.
+			try {
+				db.execSQL(newTableQueryString);
+				db.execSQL(newSelectedTableQueryString);
+			} catch (Exception e) {
+				Log.e("DB Error while creating Tables", e.toString());
+			}
+		}
 
 	}
 }

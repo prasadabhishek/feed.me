@@ -36,18 +36,12 @@ public class RemoteFetchService extends Service {
 	private int appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 	private AQuery aquery;
 	Context mCtx = this;
-	private String TAG_ENTRIES = "entries";
 	private String TAG_RESULTS = "results";
 	private String TAG_RESPONSEDATA = "responseData";
 	// private String TAG_QUERY = "query";
-	private String TAG_URL = "url";
 	private String TAG_UNESCAPED_URL = "unescapedUrl";
-	private String TAG_TITLE = "title";
 	private String TAG_TITLE_NO_FORMAT = "titleNoFormatting";
-	private String TAG_SNIPPET = "contentSnippet";
-	private String TAG_KWIC = "kwic";
 	private String TAG_CONTENT = "content";
-	private String TAG_LINK = "link";
 	private String SEARCH_TOKEN = "Google Search";
 	public static ArrayList<ListItem> listItemList;
 	public ArrayList<String> history;
@@ -102,15 +96,26 @@ public class RemoteFetchService extends Service {
 			appWidgetId = intent.getIntExtra(
 					AppWidgetManager.EXTRA_APPWIDGET_ID,
 					AppWidgetManager.INVALID_APPWIDGET_ID);
+
 		aquery = new AQuery(getBaseContext());
+
 		HistLimit = getPref(this, "history_" + appWidgetId);
 		MaxLimit = getPref(this, "max_" + appWidgetId);
 		noOfTopics = 0;
-		history = getBrowserHistory();
-		CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
-		sql.addtoDB(history);
+
+		int which_hist = getPref(mCtx,
+				"history_cutomized_" + String.valueOf(appWidgetId));
+
+		if (which_hist == 1) {
+			CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
+			history = sql.getRecentHistoryfromDb();
+		} else
+			history = getBrowserHistory();
+
 		seed = System.nanoTime();
+
 		fetchDataFromWeb();
+
 		return super.onStartCommand(intent, flags, startId);
 	}
 
@@ -157,11 +162,6 @@ public class RemoteFetchService extends Service {
 	}
 
 	private class AsyncTaskRunner extends AsyncTask<String, String, String> {
-
-		private String resp;
-		private ProgressDialog pdia;
-		RemoteViews remoteViews = new RemoteViews(mCtx.getPackageName(),
-				R.layout.widget_layout);
 
 		public void jsonCallback(String url, JSONObject json, AjaxStatus status) {
 			noOfTopics++;
@@ -316,6 +316,7 @@ public class RemoteFetchService extends Service {
 		String COLLUMN_TOPIC = "Topic";
 		String COLLUMN_FLAG = "Flag";
 		String COLLUMN_TIMESTAMP = "TimeStamp";
+		String SELECTED_TABLE_NAME = "Selected_History";
 
 		private static final String DATABASE_NAME = "feedme.db";
 		private static final int DATABASE_VERSION = 1;
@@ -331,17 +332,7 @@ public class RemoteFetchService extends Service {
 		public void onCreate(SQLiteDatabase db) {
 			// the SQLite query string that will create our 3 column database
 			// table.
-			String newTableQueryString = "create table " + TABLE_NAME + " ("
-					+ COLLUMN_ROW_ID
-					+ " integer primary key autoincrement not null,"
-					+ COLLUMN_TOPIC + " text," + COLLUMN_FLAG + " integer,"
-					+ COLLUMN_TIMESTAMP + " integer" + ");";
 			// execute the query string to the database.
-			try {
-				db.execSQL(newTableQueryString);
-			} catch (Exception e) {
-				Log.e("DB Error while creating Tables", e.toString());
-			}
 		}
 
 		@Override
@@ -349,17 +340,7 @@ public class RemoteFetchService extends Service {
 			// NOTHING TO DO HERE. THIS IS THE ORIGINAL DATABASE VERSION.
 			// OTHERWISE, YOU WOULD SPECIFIY HOW TO UPGRADE THE DATABASE
 			// FROM OLDER VERSIONS.
-			String newTableQueryString = "create table " + TABLE_NAME + " ("
-					+ COLLUMN_ROW_ID
-					+ " integer primary key autoincrement not null,"
-					+ COLLUMN_TOPIC + " text," + COLLUMN_FLAG + " integer,"
-					+ COLLUMN_TIMESTAMP + " integer" + ");";
 			// execute the query string to the database.
-			try {
-				db.execSQL(newTableQueryString);
-			} catch (Exception e) {
-				Log.e("DB Error while creating Tables", e.toString());
-			}
 		}
 
 		public void addtoDB(ArrayList<String> list) {
@@ -385,27 +366,22 @@ public class RemoteFetchService extends Service {
 			mDb.close();
 		}
 
-		public void checkFlag(ArrayList<String> list) {
+		public ArrayList<String> getRecentHistoryfromDb() {
+			ArrayList<String> result = new ArrayList<String>();
 			mDb = new CustomSQLiteOpenHelper(mCtx).getWritableDatabase();
-			for (int i = 0; i < list.size(); i++) {
-				ContentValues values = new ContentValues();
-				// this is how you add a value to a ContentValues object
-				// we are passing in a key string and a value string
-				// each time
-				values.put(COLLUMN_TOPIC, list.get(i));
-				values.put(COLLUMN_FLAG, 1);
-				values.put(COLLUMN_TIMESTAMP,
-						(int) (new Date().getTime() / 1000));
-				// ask the database object to insert the new data
-				try {
-					mDb.insert(TABLE_NAME, null, values);
-				} catch (Exception e) {
-					Log.e("DB ERROR", e.toString()); // prints the error
-														// message to
-														// the log
-				}
+			Cursor cursor = null;
+			try {
+				cursor = mDb.rawQuery("SELECT * FROM " + SELECTED_TABLE_NAME,
+						null);
+			} catch (Exception e) {
+				Log.e("DB Error getRecentHistory", e.toString());
 			}
-			mDb.close();
+
+			cursor.moveToFirst();
+			while (cursor.moveToNext()) {
+				result.add(cursor.getString(1));
+			}
+			return result;
 		}
 	}
 }
