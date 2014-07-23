@@ -54,6 +54,8 @@ public class HistoryActivity extends ListActivity {
 			DragSortListView list = getListView();
 			String item = adapter.getItem(which);
 			adapter.remove(item);
+			CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
+			sql.insertRow(item, appWidgetId);
 			// list.removeCheckState(which);
 		}
 	};
@@ -65,13 +67,15 @@ public class HistoryActivity extends ListActivity {
 
 		assignAppWidgetId();
 
-		CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
-		sql.deleteSelectedHistory();
+		// sql.deleteSelectedHistory();
 
 		max_history = getPref(this, "history_" + appWidgetId);
 
-		ArrayList<String> arrayList = new ArrayList<String>(getBrowserHistory()
-				.keySet());
+		ArrayList<String> arrayList;
+
+		arrayList = new ArrayList<String>(getBrowserHistory().keySet());
+		/* initialize the selected Db */
+
 		adapter = new ArrayAdapter<String>(this, R.layout.list_item_checkable,
 				R.id.text, arrayList);
 		setListAdapter(adapter);
@@ -100,30 +104,28 @@ public class HistoryActivity extends ListActivity {
 
 	@Override
 	public void onBackPressed() {
-		ArrayList<String> hist = new ArrayList<String>();
-		setPref(mCtx, "history_" + appWidgetId, adapter.getCount());
-		setPref(mCtx, "history_count_edited_" + appWidgetId, 1);
 		for (int i = 0; i < adapter.getCount(); i++) {
-			CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
-			sql.insertRow(adapter.getItem(i));
 			Log.d("item at : " + String.valueOf(i), adapter.getItem(i));
 		}
 		setPref(mCtx, "history_cutomized_" + String.valueOf(appWidgetId), 1);
+		/* update the widget */
+		new WidgetProvider().onUpdate(mCtx, AppWidgetManager.getInstance(mCtx),
+				new int[] { appWidgetId });
 		finish();
 	}
 
-	public HashMap<String, String> getBrowserHistory() {
-		ArrayList<String> result = new ArrayList<String>();
+	public LinkedHashMap<String, String> getBrowserHistory() {
 		LinkedHashMap<String, String> hash = new LinkedHashMap<String, String>();
 		String title;
 		String temp, temp_with_html;
 		Integer count = 0;
+		CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
 		Cursor mCur = mCtx.getContentResolver().query(Browser.BOOKMARKS_URI,
 				Browser.HISTORY_PROJECTION, null, null,
 				Browser.BookmarkColumns.DATE + " DESC");
 		mCur.moveToFirst();
 		if (mCur.moveToFirst() && mCur.getCount() > 0) {
-			while (mCur.isAfterLast() == false) {
+			while (mCur.isAfterLast() == false && count < max_history) {
 				title = mCur.getString(Browser.HISTORY_PROJECTION_TITLE_INDEX);
 				if (title.contains(SEARCH_TOKEN)) {
 					temp = title.subSequence(0,
@@ -131,7 +133,8 @@ public class HistoryActivity extends ListActivity {
 							.toString();
 					temp = temp.trim();
 					temp_with_html = temp.replaceAll(" ", "%20");
-					if (!hash.containsKey(temp)) {
+					if (!hash.containsKey(temp)
+							&& !sql.isDeleted(temp, appWidgetId)) {
 						hash.put(temp, temp_with_html);
 						count++;
 					}
@@ -179,6 +182,7 @@ public class HistoryActivity extends ListActivity {
 		String COLLUMN_TOPIC = "Topic";
 		String COLLUMN_WIDGET_ID = "WidgetId";
 		String COLLUMN_TIMESTAMP = "TimeStamp";
+		String COLLUMN_FLAG = "Flag";
 
 		private static final String DATABASE_NAME = "feedme.db";
 		private static final int DATABASE_VERSION = 1;
@@ -208,39 +212,53 @@ public class HistoryActivity extends ListActivity {
 			// FROM OLDER VERSIONS.
 		}
 
-		public void insertRow(String val) {
+		public void insertRow(String val, int id) {
 			mDb = new CustomSQLiteOpenHelper(mCtx).getWritableDatabase();
 			ContentValues values = new ContentValues();
+			Cursor c = null;
 			// this is how you add a value to a ContentValues object
 			// we are passing in a key string and a value string
 			// each time
 			values.put(COLLUMN_TOPIC, val);
-			values.put(COLLUMN_WIDGET_ID, appWidgetId);
+			values.put(COLLUMN_WIDGET_ID, id);
 			values.put(COLLUMN_TIMESTAMP, (int) (new Date().getTime() / 1000));
-			// ask the database object to insert the new data
+			values.put(COLLUMN_FLAG, 0);
 			try {
-				mDb.insert(TABLE_NAME, null, values);
+				c = mDb.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE "
+						+ COLLUMN_TOPIC + " =? ", null);
 			} catch (Exception e) {
-				Log.e("DB ERROR", e.toString()); // prints the error
-													// message to
-													// the log
+				Log.e("DB ERROR", e.toString());
+			}
+			if (c.getCount() == 0) {
+				// ask the database object to insert the new data
+				try {
+					mDb.insert(TABLE_NAME, null, values);
+				} catch (Exception e) {
+					Log.e("DB ERROR", e.toString()); // prints the error
+														// message to
+														// the log
+				}
 			}
 			mDb.close();
 		}
 
-		public void deleteSelectedHistory() {
+		public Boolean isDeleted(String val, int id) {
 			mDb = new CustomSQLiteOpenHelper(mCtx).getWritableDatabase();
-
+			Cursor flag = null;
+			String sql = " SELECT " + COLLUMN_FLAG + " FROM " + TABLE_NAME
+					+ " WHERE " + COLLUMN_TOPIC + "=?" + " AND "
+					+ COLLUMN_WIDGET_ID + "=?";
+			String[] whereArgs = new String[] { val, String.valueOf(id) };
 			try {
-				mDb.execSQL("DELETE FROM " + TABLE_NAME + " WHERE "
-						+ COLLUMN_WIDGET_ID + " = "
-						+ String.valueOf(appWidgetId));
+				flag = mDb.rawQuery(sql, whereArgs);
+				if (flag.getCount() > 0)
+					return Boolean.TRUE;
 			} catch (Exception e) {
-				Log.e("DB ERROR", e.toString()); // prints the error
-													// message to
-													// the log
+				Log.e("DB ERROR", e.toString());
 			}
 			mDb.close();
+			return Boolean.FALSE;
 		}
+
 	}
 }

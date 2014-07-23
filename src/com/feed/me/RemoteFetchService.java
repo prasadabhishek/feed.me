@@ -62,12 +62,14 @@ public class RemoteFetchService extends Service {
 		ArrayList<String> result = new ArrayList<String>();
 		String title;
 		String temp;
+		Integer count = 0;
+		CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
 		Cursor mCur = mCtx.getContentResolver().query(Browser.BOOKMARKS_URI,
 				Browser.HISTORY_PROJECTION, null, null,
 				Browser.BookmarkColumns.DATE + " DESC");
 		mCur.moveToFirst();
 		if (mCur.moveToFirst() && mCur.getCount() > 0) {
-			while (mCur.isAfterLast() == false) {
+			while (mCur.isAfterLast() == false && count < HistLimit) {
 				title = mCur.getString(Browser.HISTORY_PROJECTION_TITLE_INDEX);
 				if (title.contains(SEARCH_TOKEN)) {
 					temp = title.subSequence(0,
@@ -75,8 +77,10 @@ public class RemoteFetchService extends Service {
 							.toString();
 					temp = temp.trim();
 					temp = temp.replaceAll(" ", "%20");
-					if (!result.contains(temp))
+					if (!result.contains(temp)
+							&& !sql.isDeleted(temp, appWidgetId))
 						result.add(temp);
+					count++;
 				}
 				// Log.v("urlIdx",
 				// mCur.getString(Browser.HISTORY_PROJECTION_URL_INDEX));
@@ -103,14 +107,7 @@ public class RemoteFetchService extends Service {
 		MaxLimit = getPref(this, "max_" + appWidgetId);
 		noOfTopics = 0;
 
-		int which_hist = getPref(mCtx,
-				"history_cutomized_" + String.valueOf(appWidgetId));
-
-		if (which_hist == 1) {
-			CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
-			history = sql.getRecentHistoryfromDb();
-		} else
-			history = getBrowserHistory();
+		history = getBrowserHistory();
 
 		seed = System.nanoTime();
 
@@ -388,5 +385,23 @@ public class RemoteFetchService extends Service {
 			}
 			return result;
 		}
+
+		public Boolean isDeleted(String val, int id) {
+			mDb = new CustomSQLiteOpenHelper(mCtx).getWritableDatabase();
+			Cursor flag = null;
+			String sql = " SELECT * FROM " + SELECTED_TABLE_NAME + " WHERE "
+					+ COLLUMN_TOPIC + "=?" + " AND " + COLLUMN_WIDGET_ID + "=?";
+			String[] whereArgs = new String[] { val, String.valueOf(id) };
+			try {
+				flag = mDb.rawQuery(sql, whereArgs);
+				if (flag.getCount() > 0)
+					return Boolean.TRUE;
+			} catch (Exception e) {
+				Log.e("DB ERROR", e.toString());
+			}
+			mDb.close();
+			return Boolean.FALSE;
+		}
+
 	}
 }

@@ -46,7 +46,7 @@ public class ConfigActivity extends Activity implements OnClickListener,
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.configactivity);
-		setPref(mCtx, "history_cutomized_" + String.valueOf(appWidgetId), 0);
+		setPref(mCtx, "history_customized_" + String.valueOf(appWidgetId), 0);
 		setResult(Activity.RESULT_CANCELED);
 		Spinner themespinner = (Spinner) findViewById(R.id.theme_spinner);
 		themespinner.setOnItemSelectedListener(this);
@@ -126,7 +126,7 @@ public class ConfigActivity extends Activity implements OnClickListener,
 	 */
 	private void startWidget() {
 		setBoolPref(mCtx, "ready_" + appWidgetId, Boolean.TRUE);
-		setPref(mCtx, "history_cutomized_" + String.valueOf(appWidgetId), 0);
+		setPref(mCtx, "history_customized_" + String.valueOf(appWidgetId), 0);
 		new WidgetProvider().onUpdate(this, AppWidgetManager.getInstance(this),
 				new int[] { appWidgetId });
 		// this intent is essential to show the widget
@@ -253,9 +253,6 @@ public class ConfigActivity extends Activity implements OnClickListener,
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (getPref(mCtx, "history_count_edited_" + String.valueOf(appWidgetId)) == 1)
-			HistoryText.setText(String.valueOf(getPref(mCtx, "history_"
-					+ appWidgetId)));
 	}
 
 	private class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
@@ -265,6 +262,7 @@ public class ConfigActivity extends Activity implements OnClickListener,
 		String COLLUMN_WIDGET_ID = "WidgetId";
 		String COLLUMN_TIMESTAMP = "TimeStamp";
 		String SELECTED_TABLE_NAME = "Selected_History";
+		String COLLUMN_FLAG = "Flag";
 
 		private static final String DATABASE_NAME = "feedme.db";
 		private static final int DATABASE_VERSION = 1;
@@ -289,7 +287,8 @@ public class ConfigActivity extends Activity implements OnClickListener,
 					+ SELECTED_TABLE_NAME + " (" + COLLUMN_ROW_ID
 					+ " integer primary key autoincrement not null,"
 					+ COLLUMN_TOPIC + " text," + COLLUMN_WIDGET_ID
-					+ " integer," + COLLUMN_TIMESTAMP + " integer" + ");";
+					+ " integer," + COLLUMN_TIMESTAMP + " integer,"
+					+ COLLUMN_FLAG + " integer" + ");";
 			// execute the query string to the database.
 			try {
 				db.execSQL(newTableQueryString);
@@ -313,7 +312,8 @@ public class ConfigActivity extends Activity implements OnClickListener,
 					+ SELECTED_TABLE_NAME + " (" + COLLUMN_ROW_ID
 					+ " integer primary key autoincrement not null,"
 					+ COLLUMN_TOPIC + " text," + COLLUMN_WIDGET_ID
-					+ " integer," + COLLUMN_TIMESTAMP + " integer" + ");";
+					+ " integer," + COLLUMN_TIMESTAMP + " integer"
+					+ COLLUMN_FLAG + " integer" + ");";
 			// execute the query string to the database.
 			try {
 				db.execSQL(newTableQueryString);
