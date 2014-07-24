@@ -35,6 +35,7 @@ public class HistoryActivity extends ListActivity {
 	private String SEARCH_TOKEN = "Google Search";
 	private int appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 	private int max_history;
+	Boolean doUpdate = Boolean.FALSE;
 	private DragSortListView.DropListener onDrop = new DragSortListView.DropListener() {
 		@Override
 		public void drop(int from, int to) {
@@ -56,6 +57,7 @@ public class HistoryActivity extends ListActivity {
 			adapter.remove(item);
 			CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
 			sql.insertRow(item, appWidgetId);
+			doUpdate = Boolean.TRUE;
 			// list.removeCheckState(which);
 		}
 	};
@@ -109,8 +111,10 @@ public class HistoryActivity extends ListActivity {
 		}
 		setPref(mCtx, "history_cutomized_" + String.valueOf(appWidgetId), 1);
 		/* update the widget */
-		new WidgetProvider().onUpdate(mCtx, AppWidgetManager.getInstance(mCtx),
-				new int[] { appWidgetId });
+		if (doUpdate)
+			new WidgetProvider().onUpdate(mCtx,
+					AppWidgetManager.getInstance(mCtx),
+					new int[] { appWidgetId });
 		finish();
 	}
 

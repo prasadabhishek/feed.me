@@ -31,7 +31,7 @@
             android:id="@+id/loading_view_transparent"
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:layout_weight="0.2"
+            android:layout_weight="0.0"
             android:fontFamily="sans-serif-thin"
             android:gravity="center"
             android:textColor="#ffffff"
@@ -40,20 +40,22 @@
             android:visibility="visible" />
 
         <ImageButton
+            android:id="@+id/refreshButton_transparent"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_gravity="right|center_vertical"
+            android:layout_weight="0.2"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:src="@drawable/refresh" />
+
+        <ImageButton
             android:id="@+id/feedButton_transparent"
             android:layout_width="0dip"
             android:layout_height="match_parent"
             android:layout_weight="0.2"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_launcher" />
-
-        <!-- <Button -->
-        <!-- android:id="@+id/refresh_button" -->
-        <!-- style="?android:attr/buttonStyleSmall" -->
-        <!-- android:layout_width="0dip" -->
-        <!-- android:layout_height="wrap_content" -->
-        <!-- android:layout_weight="0.4" -->
-        <!-- android:text="Refresh" /> -->
     </LinearLayout>
     <!-- ListView to be shown on widget -->
 

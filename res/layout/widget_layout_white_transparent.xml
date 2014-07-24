@@ -31,7 +31,7 @@
             android:id="@+id/loading_view_white_transparent"
             android:layout_width="0dip"
             android:layout_height="match_parent"
-            android:layout_weight="0.2"
+            android:layout_weight="0.0"
             android:fontFamily="sans-serif-thin"
             android:gravity="center"
             android:textColor="#000000"
@@ -39,6 +39,15 @@
             android:textStyle="italic"
             android:visibility="visible" />
 
+        <ImageButton
+            android:id="@+id/refreshButton_white_transparent"
+            android:layout_width="0dip"
+            android:layout_height="match_parent"
+            android:layout_weight="0.2"
+            android:layout_gravity="right|center_vertical"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            android:src="@drawable/refresh_black" />
         <ImageButton
             android:id="@+id/feedButton_white_transparent"
             android:layout_width="0dip"

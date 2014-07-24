@@ -76,11 +76,11 @@ public class RemoteFetchService extends Service {
 							((title.length() - SEARCH_TOKEN.length()) - 3))
 							.toString();
 					temp = temp.trim();
-					temp = temp.replaceAll(" ", "%20");
 					if (!result.contains(temp)
-							&& !sql.isDeleted(temp, appWidgetId))
-						result.add(temp);
-					count++;
+							&& !sql.isDeleted(temp, appWidgetId)) {
+						result.add(temp.replaceAll(" ", "%20"));
+						count++;
+					}
 				}
 				// Log.v("urlIdx",
 				// mCur.getString(Browser.HISTORY_PROJECTION_URL_INDEX));

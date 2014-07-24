@@ -261,13 +261,14 @@ public class WidgetProvider extends AppWidgetProvider {
 							pendingServiceIntent);
 				else if (themeNumber == 2)
 					remoteViews.setOnClickPendingIntent(
-							R.id.feedButton_transparent, pendingServiceIntent);
-				else if (themeNumber == 3)
-					remoteViews.setOnClickPendingIntent(R.id.feedButton_white,
+							R.id.refreshButton_transparent,
 							pendingServiceIntent);
+				else if (themeNumber == 3)
+					remoteViews.setOnClickPendingIntent(
+							R.id.refreshButton_white, pendingServiceIntent);
 				else
 					remoteViews.setOnClickPendingIntent(
-							R.id.feedButton_white_transparent,
+							R.id.refreshButton_white_transparent,
 							pendingServiceIntent);
 
 				Log.d("SETTING PENDING INTENT", "feedbutton");
@@ -279,8 +280,19 @@ public class WidgetProvider extends AppWidgetProvider {
 				PendingIntent HistoryIntent = PendingIntent.getBroadcast(
 						context, 0, historyIntent,
 						PendingIntent.FLAG_UPDATE_CURRENT);
-				remoteViews.setOnClickPendingIntent(R.id.feedButton,
-						HistoryIntent);
+
+				if (themeNumber == 1)
+					remoteViews.setOnClickPendingIntent(R.id.feedButton,
+							HistoryIntent);
+				else if (themeNumber == 2)
+					remoteViews.setOnClickPendingIntent(
+							R.id.feedButton_transparent, HistoryIntent);
+				else if (themeNumber == 3)
+					remoteViews.setOnClickPendingIntent(R.id.feedButton_white,
+							HistoryIntent);
+				else
+					remoteViews.setOnClickPendingIntent(
+							R.id.feedButton_white_transparent, HistoryIntent);
 
 				appWidgetManager.updateAppWidget(appWidgetIds[i], remoteViews);
 			}
