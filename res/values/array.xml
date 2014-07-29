@@ -3,20 +3,17 @@
 
     <string-array name="theme_array">
         <item>Black</item>
-        <item>Transparent Black</item>
+        <!-- <item>Transparent Black</item> -->
         <item>White</item>
-        <item>Transparent White</item>
+        <!-- <item>Transparent White</item> -->
     </string-array>
     <string-array name="update_interval_array">
-        <item>10 mins</item>
-        <item>30 mins</item>
         <item>1 Hr</item>
         <item>2 Hrs</item>
         <item>4 Hrs</item>
         <item>8 Hrs</item>
         <item>12 Hrs</item>
         <item>24 Hrs</item>
-        <item>1 min</item>
     </string-array>
 
 </resources>

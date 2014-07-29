@@ -104,7 +104,7 @@ public class ConfigActivity extends Activity implements OnClickListener,
 		if (v.getId() == R.id.widgetStartButton) {
 			if (HistoryText.getText().toString().isEmpty()) {
 				HistoryText.setText("");
-				HistoryText.setError("Please Enter Value 1 - 15");
+				HistoryText.setError("Please Enter Value 1 - 20");
 			} else if (MaxText.getText().toString().isEmpty()) {
 				MaxText.setText("");
 				MaxText.setError("Please Enter Value 1 - 4");
@@ -157,32 +157,28 @@ public class ConfigActivity extends Activity implements OnClickListener,
 		case R.id.theme_spinner: {
 			if (pos == 0)
 				setPref(mCtx, "theme_" + appWidgetId, 1);
-			else if (pos == 1)
-				setPref(mCtx, "theme_" + appWidgetId, 2);
-			else if (pos == 2)
-				setPref(mCtx, "theme_" + appWidgetId, 3);
+			// else if (pos == 1)
+			// setPref(mCtx, "theme_" + appWidgetId, 2);
 			else
-				setPref(mCtx, "theme_" + appWidgetId, 4);
+				setPref(mCtx, "theme_" + appWidgetId, 3);
+			// else
+			// setPref(mCtx, "theme_" + appWidgetId, 4);
 		}
 		case R.id.update_interval_spinner: {
 			if (pos == 0)
-				setPref(mCtx, "update_interval_" + appWidgetId, 10);
-			else if (pos == 1)
-				setPref(mCtx, "update_interval_" + appWidgetId, 30);
-			else if (pos == 2)
 				setPref(mCtx, "update_interval_" + appWidgetId, 60);
-			else if (pos == 3)
+			else if (pos == 1)
 				setPref(mCtx, "update_interval_" + appWidgetId, 120);
-			else if (pos == 4)
+			else if (pos == 2)
 				setPref(mCtx, "update_interval_" + appWidgetId, 240);
-			else if (pos == 5)
+			else if (pos == 3)
 				setPref(mCtx, "update_interval_" + appWidgetId, 480);
-			else if (pos == 6)
+			else if (pos == 4)
 				setPref(mCtx, "update_interval_" + appWidgetId, 720);
-			else if (pos == 7)
+			else if (pos == 5)
 				setPref(mCtx, "update_interval_" + appWidgetId, 1440);
-			else
-				setPref(mCtx, "update_interval_" + appWidgetId, 1);
+			// else
+			// setPref(mCtx, "update_interval_" + appWidgetId, 1);
 		}
 		}
 	}
@@ -211,12 +207,12 @@ public class ConfigActivity extends Activity implements OnClickListener,
 		if (getCurrentFocus().getId() == R.id.max_items_from_history) {
 			if (!HistoryText.getText().toString().isEmpty()) {
 				String history = HistoryText.getText().toString();
-				if (Integer.valueOf(history) > 15
+				if (Integer.valueOf(history) > 20
 						|| Integer.valueOf(history) < 1) {
-					Toast.makeText(mCtx, "Please Enter Value 1 - 15",
+					Toast.makeText(mCtx, "Please Enter Value 1 - 20",
 							Toast.LENGTH_LONG);
 					HistoryText.setText("");
-					HistoryText.setError("Please Enter Value 1 - 15");
+					HistoryText.setError("Please Enter Value 1 - 20");
 				} else {
 					setPref(mCtx, "history_" + appWidgetId,
 							Integer.valueOf(history));

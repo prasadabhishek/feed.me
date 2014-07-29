@@ -99,7 +99,6 @@ public class WidgetProvider extends AppWidgetProvider {
 		AlarmManager alarmManager = (AlarmManager) context
 				.getSystemService(Context.ALARM_SERVICE);
 		alarmManager.cancel(createClockTickIntent(context));
-		Toast.makeText(context, "onDisabled", Toast.LENGTH_SHORT);
 		setBoolPref(context, "alarm_set", Boolean.FALSE);
 	}
 
@@ -131,7 +130,7 @@ public class WidgetProvider extends AppWidgetProvider {
 					alarmManager.setRepeating(AlarmManager.RTC,
 							System.currentTimeMillis()
 									+ (updateInterval * 60000),
-							updateInterval * 60000,
+							(updateInterval * 60000),
 							createClockTickIntent(context));
 					Log.d("ALARM SIGNAL", String.valueOf(updateInterval));
 					Log.d("ALARM STATUS",
@@ -143,159 +142,141 @@ public class WidgetProvider extends AppWidgetProvider {
 							String.valueOf(getBoolPref(context, "alarm_set_"
 									+ appWidgetIds[i])));
 				}
-				if (themeNumber == 1) {
-					remoteViews = new RemoteViews(context.getPackageName(),
-							R.layout.widget_layout);
-					remoteViews.setTextViewText(R.id.loading_view,
-							"Loading.... ");
-				} else if (themeNumber == 2) {
-					remoteViews = new RemoteViews(context.getPackageName(),
-							R.layout.widget_layout_transparent);
-					remoteViews.setTextViewText(R.id.loading_view_transparent,
-							"Loading.... ");
-				} else if (themeNumber == 3) {
-					remoteViews = new RemoteViews(context.getPackageName(),
-							R.layout.widget_layout_white);
-					remoteViews.setTextViewText(R.id.loading_view_white,
-							"Loading.... ");
-				} else {
-					remoteViews = new RemoteViews(context.getPackageName(),
-							R.layout.widget_layout_white_transparent);
-					remoteViews
-							.setTextViewText(
-									R.id.loading_view_white_transparent,
-									"Loading.... ");
-				}
-
-				int dayofweek = TIME.get(Calendar.DAY_OF_WEEK);
-				int month = TIME.get(Calendar.MONTH);
-				int date = TIME.get(Calendar.DATE);
-
-				if (themeNumber == 1)
-					remoteViews.setTextViewText(
-							R.id.name_view,
-							String.valueOf(days[dayofweek]) + " , "
-									+ months[month] + " "
-									+ String.valueOf(date));
-				else if (themeNumber == 2)
-					remoteViews.setTextViewText(
-							R.id.name_view_transparent,
-							String.valueOf(days[dayofweek]) + " , "
-									+ months[month] + " "
-									+ String.valueOf(date));
-				else if (themeNumber == 3)
-					remoteViews.setTextViewText(
-							R.id.name_view_white,
-							String.valueOf(days[dayofweek]) + " , "
-									+ months[month] + " "
-									+ String.valueOf(date));
-				else
-					remoteViews.setTextViewText(
-							R.id.name_view_white_transparent,
-							String.valueOf(days[dayofweek]) + " , "
-									+ months[month] + " "
-									+ String.valueOf(date));
-
-				Intent serviceIntent = new Intent(context,
-						RemoteFetchService.class);
-
-				serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
-						appWidgetIds[i]);
-				context.startService(serviceIntent);
-
-				String definePage = "http://www.google.com";
-				Intent defineIntent = new Intent(Intent.ACTION_VIEW,
-						Uri.parse(definePage));
-				PendingIntent pendingIntent = PendingIntent.getActivity(
-						context, 0 /* no requestCode */, defineIntent, 0 /*
-																		 * no
-																		 * flags
-																		 */);
-				if (themeNumber == 1)
-					remoteViews.setOnClickPendingIntent(R.id.heading,
-							pendingIntent);
-				else if (themeNumber == 2)
-					remoteViews.setOnClickPendingIntent(
-							R.id.heading_transparent, pendingIntent);
-				else if (themeNumber == 3)
-					remoteViews.setOnClickPendingIntent(R.id.heading_white,
-							pendingIntent);
-				else
-					remoteViews.setOnClickPendingIntent(
-							R.id.heading_white_transparent, pendingIntent);
-
-				Intent urlIntent = new Intent(context, WidgetProvider.class);
-				urlIntent.setAction(WidgetProvider.URL_ACTION);
-				urlIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
-						appWidgetIds[i]);
-				PendingIntent toastPendingIntent = PendingIntent.getBroadcast(
-						context, 0, urlIntent,
-						PendingIntent.FLAG_UPDATE_CURRENT);
-
-				if (themeNumber == 1)
-					remoteViews.setPendingIntentTemplate(R.id.listViewWidget,
-							toastPendingIntent);
-				else if (themeNumber == 2)
-					remoteViews
-							.setPendingIntentTemplate(
-									R.id.listViewWidget_transparent,
-									toastPendingIntent);
-				else if (themeNumber == 3)
-					remoteViews.setPendingIntentTemplate(
-							R.id.listViewWidget_white, toastPendingIntent);
-				else
-					remoteViews.setPendingIntentTemplate(
-							R.id.listViewWidget_white_transparent,
-							toastPendingIntent);
-
-				serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
-						appWidgetIds[i]);
-				serviceIntent.setData(Uri.parse(serviceIntent
-						.toUri(Intent.URI_INTENT_SCHEME)));
-				PendingIntent pendingServiceIntent = PendingIntent.getService(
-						context, 0, serviceIntent,
-						PendingIntent.FLAG_UPDATE_CURRENT);
-
-				if (themeNumber == 1)
-					remoteViews.setOnClickPendingIntent(R.id.refreshButton,
-							pendingServiceIntent);
-				else if (themeNumber == 2)
-					remoteViews.setOnClickPendingIntent(
-							R.id.refreshButton_transparent,
-							pendingServiceIntent);
-				else if (themeNumber == 3)
-					remoteViews.setOnClickPendingIntent(
-							R.id.refreshButton_white, pendingServiceIntent);
-				else
-					remoteViews.setOnClickPendingIntent(
-							R.id.refreshButton_white_transparent,
-							pendingServiceIntent);
-
-				Log.d("SETTING PENDING INTENT", "feedbutton");
-
-				Intent historyIntent = new Intent(context, WidgetProvider.class);
-				historyIntent.setAction(WidgetProvider.FLAG_HISTORY);
-				historyIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
-						appWidgetIds[i]);
-				PendingIntent HistoryIntent = PendingIntent.getBroadcast(
-						context, 0, historyIntent,
-						PendingIntent.FLAG_UPDATE_CURRENT);
-
-				if (themeNumber == 1)
-					remoteViews.setOnClickPendingIntent(R.id.feedButton,
-							HistoryIntent);
-				else if (themeNumber == 2)
-					remoteViews.setOnClickPendingIntent(
-							R.id.feedButton_transparent, HistoryIntent);
-				else if (themeNumber == 3)
-					remoteViews.setOnClickPendingIntent(R.id.feedButton_white,
-							HistoryIntent);
-				else
-					remoteViews.setOnClickPendingIntent(
-							R.id.feedButton_white_transparent, HistoryIntent);
-
-				appWidgetManager.updateAppWidget(appWidgetIds[i], remoteViews);
 			}
+			if (themeNumber == 1) {
+				remoteViews = new RemoteViews(context.getPackageName(),
+						R.layout.widget_layout);
+				remoteViews.setTextViewText(R.id.loading_view, "Loading.... ");
+			} else if (themeNumber == 2) {
+				remoteViews = new RemoteViews(context.getPackageName(),
+						R.layout.widget_layout_transparent);
+				remoteViews.setTextViewText(R.id.loading_view_transparent,
+						"Loading.... ");
+			} else if (themeNumber == 3) {
+				remoteViews = new RemoteViews(context.getPackageName(),
+						R.layout.widget_layout_white);
+				remoteViews.setTextViewText(R.id.loading_view_white,
+						"Loading.... ");
+			} else {
+				remoteViews = new RemoteViews(context.getPackageName(),
+						R.layout.widget_layout_white_transparent);
+				remoteViews.setTextViewText(
+						R.id.loading_view_white_transparent, "Loading.... ");
+			}
+
+			int dayofweek = TIME.get(Calendar.DAY_OF_WEEK);
+			int month = TIME.get(Calendar.MONTH);
+			int date = TIME.get(Calendar.DATE);
+
+			if (themeNumber == 1)
+				remoteViews.setTextViewText(R.id.name_view,
+						String.valueOf(days[dayofweek]) + " , " + months[month]
+								+ " " + String.valueOf(date));
+			else if (themeNumber == 2)
+				remoteViews.setTextViewText(R.id.name_view_transparent,
+						String.valueOf(days[dayofweek]) + " , " + months[month]
+								+ " " + String.valueOf(date));
+			else if (themeNumber == 3)
+				remoteViews.setTextViewText(R.id.name_view_white,
+						String.valueOf(days[dayofweek]) + " , " + months[month]
+								+ " " + String.valueOf(date));
+			else
+				remoteViews.setTextViewText(R.id.name_view_white_transparent,
+						String.valueOf(days[dayofweek]) + " , " + months[month]
+								+ " " + String.valueOf(date));
+
+			Intent serviceIntent = new Intent(context, RemoteFetchService.class);
+			serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+					appWidgetIds[i]);
+
+			context.startService(serviceIntent);
+
+			String definePage = "http://www.google.com";
+			Intent defineIntent = new Intent(Intent.ACTION_VIEW,
+					Uri.parse(definePage));
+			PendingIntent pendingIntent = PendingIntent.getActivity(context,
+					0 /* no requestCode */, defineIntent, 0 /*
+														 * no flags
+														 */);
+			if (themeNumber == 1)
+				remoteViews
+						.setOnClickPendingIntent(R.id.heading, pendingIntent);
+			else if (themeNumber == 2)
+				remoteViews.setOnClickPendingIntent(R.id.heading_transparent,
+						pendingIntent);
+			else if (themeNumber == 3)
+				remoteViews.setOnClickPendingIntent(R.id.heading_white,
+						pendingIntent);
+			else
+				remoteViews.setOnClickPendingIntent(
+						R.id.heading_white_transparent, pendingIntent);
+
+			Intent urlIntent = new Intent(context, WidgetProvider.class);
+			urlIntent.setAction(WidgetProvider.URL_ACTION);
+			urlIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+					appWidgetIds[i]);
+			PendingIntent toastPendingIntent = PendingIntent.getBroadcast(
+					context, 0, urlIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+			if (themeNumber == 1)
+				remoteViews.setPendingIntentTemplate(R.id.listViewWidget,
+						toastPendingIntent);
+			else if (themeNumber == 2)
+				remoteViews.setPendingIntentTemplate(
+						R.id.listViewWidget_transparent, toastPendingIntent);
+			else if (themeNumber == 3)
+				remoteViews.setPendingIntentTemplate(R.id.listViewWidget_white,
+						toastPendingIntent);
+			else
+				remoteViews.setPendingIntentTemplate(
+						R.id.listViewWidget_white_transparent,
+						toastPendingIntent);
+
+			serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+					appWidgetIds[i]);
+			serviceIntent.setData(Uri.parse(serviceIntent
+					.toUri(Intent.URI_INTENT_SCHEME)));
+			PendingIntent pendingServiceIntent = PendingIntent.getService(
+					context, 0, serviceIntent,
+					PendingIntent.FLAG_UPDATE_CURRENT);
+
+			if (themeNumber == 1)
+				remoteViews.setOnClickPendingIntent(R.id.refreshButton,
+						pendingServiceIntent);
+			else if (themeNumber == 2)
+				remoteViews.setOnClickPendingIntent(
+						R.id.refreshButton_transparent, pendingServiceIntent);
+			else if (themeNumber == 3)
+				remoteViews.setOnClickPendingIntent(R.id.refreshButton_white,
+						pendingServiceIntent);
+			else
+				remoteViews.setOnClickPendingIntent(
+						R.id.refreshButton_white_transparent,
+						pendingServiceIntent);
+
+			Log.d("SETTING PENDING INTENT", "feedbutton");
+
+			Intent historyIntent = new Intent(context, WidgetProvider.class);
+			historyIntent.setAction(WidgetProvider.FLAG_HISTORY);
+			historyIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+					appWidgetIds[i]);
+			PendingIntent HistoryIntent = PendingIntent.getBroadcast(context,
+					0, historyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+			if (themeNumber == 1)
+				remoteViews.setOnClickPendingIntent(R.id.feedButton,
+						HistoryIntent);
+			else if (themeNumber == 2)
+				remoteViews.setOnClickPendingIntent(
+						R.id.feedButton_transparent, HistoryIntent);
+			else if (themeNumber == 3)
+				remoteViews.setOnClickPendingIntent(R.id.feedButton_white,
+						HistoryIntent);
+			else
+				remoteViews.setOnClickPendingIntent(
+						R.id.feedButton_white_transparent, HistoryIntent);
+
+			appWidgetManager.updateAppWidget(appWidgetIds[i], remoteViews);
 			super.onUpdate(context, appWidgetManager, appWidgetIds);
 		}
 	}
@@ -426,11 +407,23 @@ public class WidgetProvider extends AppWidgetProvider {
 					R.layout.widget_layout_white_transparent);
 		}
 
+		ConnectivityManager cm = (ConnectivityManager) context
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo ni = cm.getActiveNetworkInfo();
+
 		if (intent.getAction().equals(DATA_FETCHED)) {
-			AppWidgetManager appWidgetManager = AppWidgetManager
-					.getInstance(context);
-			RemoteViews remoteViews = updateWidgetListView(context, appWidgetId);
-			appWidgetManager.updateAppWidget(appWidgetId, remoteViews);
+			// Get the widget manager and ids for this widget provider, then
+			// call the shared
+			// clock update method.
+			if (ni != null) {
+				Log.d("DATA_FETCHED", "Yes");
+				AppWidgetManager appWidgetManager = AppWidgetManager
+						.getInstance(context);
+				RemoteViews remoteViews = updateWidgetListView(context,
+						appWidgetId);
+				appWidgetManager.updateAppWidget(appWidgetId, remoteViews);
+			} else
+				Log.d("DATA_FETCHED", "No Connection");
 		}
 		if (intent.getAction().equals(URL_ACTION)) {
 			String url = intent.getStringExtra(EXTRA_ITEM);
@@ -447,31 +440,23 @@ public class WidgetProvider extends AppWidgetProvider {
 			context.startActivity(historyintent);
 		}
 		if (CLOCK_WIDGET_UPDATE.equals(intent.getAction())) {
-			Log.d("onReceive", "Clock update");
-			Toast.makeText(context, "onRecieve", Toast.LENGTH_SHORT);
-			ConnectivityManager cm = (ConnectivityManager) context
-					.getSystemService(Context.CONNECTIVITY_SERVICE);
-			NetworkInfo ni = cm.getActiveNetworkInfo();
 			// Get the widget manager and ids for this widget provider, then
 			// call the shared
 			// clock update method.
 			if (ni != null) {
+				Log.d("CLOCK_WIDGET_UPDATE", "Yes");
 				ComponentName thisAppWidget = new ComponentName(
 						context.getPackageName(), getClass().getName());
 				AppWidgetManager appWidgetManager = AppWidgetManager
 						.getInstance(context);
 				int ids[] = appWidgetManager.getAppWidgetIds(thisAppWidget);
 				for (int appWidgetID : ids) {
-					// Intent serviceIntent = new Intent(context,
-					// RemoteFetchService.class);
-					// serviceIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
-					// appWidgetID);
-					// context.startService(serviceIntent);
 					new WidgetProvider().onUpdate(context,
 							AppWidgetManager.getInstance(context),
 							new int[] { appWidgetID });
 				}
-			}
+			} else
+				Log.d("CLOCK_WIDGET_UPDATE", "No Conection");
 		}
 	}
 

@@ -52,12 +52,16 @@ public class HistoryActivity extends ListActivity {
 	private RemoveListener onRemove = new DragSortListView.RemoveListener() {
 		@Override
 		public void remove(int which) {
-			DragSortListView list = getListView();
-			String item = adapter.getItem(which);
-			adapter.remove(item);
-			CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
-			sql.insertRow(item, appWidgetId);
-			doUpdate = Boolean.TRUE;
+			try {
+				DragSortListView list = getListView();
+				String item = adapter.getItem(which);
+				adapter.remove(item);
+				CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
+				sql.insertRow(item, appWidgetId);
+				doUpdate = Boolean.TRUE;
+			} catch (Exception e) {
+				Log.d("Remove Error", e.toString());
+			}
 			// list.removeCheckState(which);
 		}
 	};
@@ -231,16 +235,18 @@ public class HistoryActivity extends ListActivity {
 				c = mDb.rawQuery("SELECT * FROM " + TABLE_NAME + " WHERE "
 						+ COLLUMN_TOPIC + " =? ", null);
 			} catch (Exception e) {
-				Log.e("DB ERROR", e.toString());
+				Log.e("DB Select Error : insertRow : ", e.toString());
 			}
 			if (c.getCount() == 0) {
 				// ask the database object to insert the new data
 				try {
 					mDb.insert(TABLE_NAME, null, values);
 				} catch (Exception e) {
-					Log.e("DB ERROR", e.toString()); // prints the error
-														// message to
-														// the log
+					Log.e("DB Insert ERROR : insertRow : ", e.toString()); // prints
+																			// the
+																			// error
+					// message to
+					// the log
 				}
 			}
 			mDb.close();

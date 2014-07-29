@@ -19,6 +19,8 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -96,23 +98,35 @@ public class RemoteFetchService extends Service {
 	 */
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		if (intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID))
-			appWidgetId = intent.getIntExtra(
-					AppWidgetManager.EXTRA_APPWIDGET_ID,
-					AppWidgetManager.INVALID_APPWIDGET_ID);
+		try {
+			if (intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID))
+				appWidgetId = intent.getIntExtra(
+						AppWidgetManager.EXTRA_APPWIDGET_ID,
+						AppWidgetManager.INVALID_APPWIDGET_ID);
 
-		aquery = new AQuery(getBaseContext());
+			aquery = new AQuery(getBaseContext());
 
-		HistLimit = getPref(this, "history_" + appWidgetId);
-		MaxLimit = getPref(this, "max_" + appWidgetId);
-		noOfTopics = 0;
+			HistLimit = getPref(this, "history_" + appWidgetId);
+			MaxLimit = getPref(this, "max_" + appWidgetId);
+			noOfTopics = 0;
 
-		history = getBrowserHistory();
+			history = getBrowserHistory();
 
-		seed = System.nanoTime();
+			seed = System.nanoTime();
 
-		fetchDataFromWeb();
-
+			/* Check Internet Connectivity */
+			ConnectivityManager cm = (ConnectivityManager) mCtx
+					.getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo ni = cm.getActiveNetworkInfo();
+			if (ni != null) {
+				fetchDataFromWeb();
+				Log.d("Feed.Me Connectivity", "Connected");
+			} else {
+				Log.d("Feed.Me Connectivity", "None");
+			}
+		} catch (Exception e) {
+			Log.d("Remote Fetch Service Error", e.toString());
+		}
 		return super.onStartCommand(intent, flags, startId);
 	}
 
@@ -213,8 +227,6 @@ public class RemoteFetchService extends Service {
 		@Override
 		protected void onPostExecute(String result) {
 			// execution of result of Long time consuming operation
-			if (listItemList.size() > 0)
-				populateWidget();
 			Log.d("Thread ", "Executed");
 			// remoteViews.setTextViewText(R.id.loading_view, "");
 		}
@@ -286,6 +298,8 @@ public class RemoteFetchService extends Service {
 				Log.d("No of Topics " + appWidgetId, String.valueOf(noOfTopics));
 				Log.d("History Limit " + appWidgetId,
 						String.valueOf(histLength));
+				if (listItemList.size() > 0)
+					populateWidget();
 			} else {
 				Log.d("lafda", "null hai be");
 			}
