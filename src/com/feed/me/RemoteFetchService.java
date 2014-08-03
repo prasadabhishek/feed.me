@@ -195,7 +195,7 @@ public class RemoteFetchService extends Service {
 						if (!checkCache.containsKey(history.get(j))) {
 							checkCache.put(history.get(j), "done");
 
-							Log.d("Thread ",
+							Log.d("Thread Start",
 									"History Item " + String.valueOf(j) + " "
 											+ String.valueOf(appWidgetId) + " "
 											+ history.get(j));
@@ -213,7 +213,9 @@ public class RemoteFetchService extends Service {
 				Thread.sleep(2000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Log.d("Thread Failed", e.toString());
+			} catch (Exception e) {
+				Log.d("Thread Failed", e.toString());
 			}
 
 			return null;
@@ -298,8 +300,17 @@ public class RemoteFetchService extends Service {
 				Log.d("No of Topics " + appWidgetId, String.valueOf(noOfTopics));
 				Log.d("History Limit " + appWidgetId,
 						String.valueOf(histLength));
-				if (listItemList.size() > 0)
-					populateWidget();
+				if (listItemList.size() > 0) {
+					ConnectivityManager cm = (ConnectivityManager) mCtx
+							.getSystemService(Context.CONNECTIVITY_SERVICE);
+					NetworkInfo ni = cm.getActiveNetworkInfo();
+					if (ni != null) {
+						Log.d("CALL_POPULATE_WIDGET", "Yes");
+						populateWidget();
+					} else {
+						Log.d("CALL_POPULATE_WIDGET", "No Connection");
+					}
+				}
 			} else {
 				Log.d("lafda", "null hai be");
 			}
@@ -314,13 +325,19 @@ public class RemoteFetchService extends Service {
 	 * to do necessary action and here action == WidgetProvider.DATA_FETCHED
 	 */
 	private void populateWidget() {
-
-		Intent widgetUpdateIntent = new Intent();
-		widgetUpdateIntent.setAction(WidgetProvider.DATA_FETCHED);
-		widgetUpdateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
-				appWidgetId);
-		sendBroadcast(widgetUpdateIntent);
-
+		ConnectivityManager cm = (ConnectivityManager) mCtx
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo ni = cm.getActiveNetworkInfo();
+		if (ni != null) {
+			Log.d("POPULATE_WIDGET", "Yes");
+			Intent widgetUpdateIntent = new Intent();
+			widgetUpdateIntent.setAction(WidgetProvider.DATA_FETCHED);
+			widgetUpdateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+					appWidgetId);
+			sendBroadcast(widgetUpdateIntent);
+		} else {
+			Log.d("POPULATE_WIDGET", "No Connection");
+		}
 		this.stopSelf();
 	}
 
