@@ -62,32 +62,36 @@ public class RemoteFetchService extends Service {
 
 	public ArrayList<String> getBrowserHistory() {
 		ArrayList<String> result = new ArrayList<String>();
-		String title;
 		String temp;
 		Integer count = 0;
-		CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
-		Cursor mCur = mCtx.getContentResolver().query(Browser.BOOKMARKS_URI,
-				Browser.HISTORY_PROJECTION, null, null,
-				Browser.BookmarkColumns.DATE + " DESC");
-		mCur.moveToFirst();
-		if (mCur.moveToFirst() && mCur.getCount() > 0) {
-			while (mCur.isAfterLast() == false && count < HistLimit) {
-				title = mCur.getString(Browser.HISTORY_PROJECTION_TITLE_INDEX);
-				if (title.contains(SEARCH_TOKEN)) {
-					temp = title.subSequence(0,
-							((title.length() - SEARCH_TOKEN.length()) - 3))
-							.toString();
+
+		try {
+			CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
+			/* Add Custom Topics */
+			ArrayList<String> customList = sql.getCustomList(appWidgetId);
+			for (int i = 0; i < customList.size(); i++) {
+				result.add(customList.get(i).trim().replaceAll(" ", "%20"));
+			}
+			/* Add Browser Items */
+			Cursor mCur = mCtx.getContentResolver().query(Browser.SEARCHES_URI,
+					Browser.SEARCHES_PROJECTION, null, null,
+					Browser.SearchColumns.DATE + " DESC");
+			mCur.moveToFirst();
+			if (mCur.moveToFirst() && mCur.getCount() > 0) {
+				while (mCur.isAfterLast() == false && count < HistLimit) {
+					temp = mCur.getString(mCur
+							.getColumnIndex(Browser.SearchColumns.SEARCH));
 					temp = temp.trim();
 					if (!result.contains(temp)
 							&& !sql.isDeleted(temp, appWidgetId)) {
 						result.add(temp.replaceAll(" ", "%20"));
 						count++;
 					}
+					mCur.moveToNext();
 				}
-				// Log.v("urlIdx",
-				// mCur.getString(Browser.HISTORY_PROJECTION_URL_INDEX));
-				mCur.moveToNext();
 			}
+		} catch (Exception e) {
+			Log.d("GetHistory_RemoteFetch", e.toString());
 		}
 		return result;
 	}
@@ -109,7 +113,7 @@ public class RemoteFetchService extends Service {
 			HistLimit = getPref(this, "history_" + appWidgetId);
 			MaxLimit = getPref(this, "max_" + appWidgetId);
 			noOfTopics = 0;
-
+			Log.d("History Limit", String.valueOf(HistLimit));
 			history = getBrowserHistory();
 
 			seed = System.nanoTime();
@@ -155,10 +159,10 @@ public class RemoteFetchService extends Service {
 
 		Log.d("History Size", String.valueOf(history.size()));
 
-		if (history.size() > HistLimit)
-			histLength = HistLimit;
-		else
-			histLength = history.size();
+		// if (history.size() > HistLimit)
+		// histLength = HistLimit;
+		// else
+		histLength = history.size();
 
 		// RSS READER
 		try {
@@ -228,7 +232,16 @@ public class RemoteFetchService extends Service {
 		 */
 		@Override
 		protected void onPostExecute(String result) {
+			CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
 			// execution of result of Long time consuming operation
+			if (listItemList != null) {
+				if (listItemList.size() > 0) {
+					Log.d("Deleting History ", "Executed");
+					sql.deleteFromHistory(appWidgetId);
+					Log.d("Storing History ", "Executed");
+					sql.storeToHistory(listItemList, appWidgetId);
+				}
+			}
 			Log.d("Thread ", "Executed");
 			// remoteViews.setTextViewText(R.id.loading_view, "");
 		}
@@ -348,7 +361,9 @@ public class RemoteFetchService extends Service {
 		String COLLUMN_WIDGET_ID = "WidgetId";
 		String COLLUMN_TIMESTAMP = "TimeStamp";
 		String SELECTED_TABLE_NAME = "Selected_History";
-
+		String COLLUMN_HEADING = "Heading";
+		String COLLUMN_CONTENT = "Content";
+		String COLLUMN_URL = "Url";
 		private static final String DATABASE_NAME = "feedme.db";
 		private static final int DATABASE_VERSION = 1;
 		SQLiteDatabase mDb;
@@ -397,23 +412,20 @@ public class RemoteFetchService extends Service {
 			mDb.close();
 		}
 
-		public ArrayList<String> getRecentHistoryfromDb() {
-			ArrayList<String> result = new ArrayList<String>();
+		public ArrayList<String> getCustomList(int id) {
 			mDb = new CustomSQLiteOpenHelper(mCtx).getWritableDatabase();
-			Cursor cursor = null;
-			try {
-				cursor = mDb.rawQuery(
-						"SELECT * FROM " + SELECTED_TABLE_NAME + " WHERE "
-								+ COLLUMN_WIDGET_ID + " = "
-								+ String.valueOf(appWidgetId), null);
-			} catch (Exception e) {
-				Log.e("DB Error getRecentHistory", e.toString());
-			}
+			ArrayList<String> result = new ArrayList<String>();
+			Cursor c;
+			c = mDb.rawQuery(
+					"Select Topic from CustomTopics where WidgetId = ?",
+					new String[] { String.valueOf(id) });
+			c.moveToFirst();
 
-			cursor.moveToFirst();
-			while (cursor.moveToNext()) {
-				result.add(cursor.getString(1));
+			while (!c.isAfterLast()) {
+				result.add(c.getString(0));
+				c.moveToNext();
 			}
+			mDb.close();
 			return result;
 		}
 
@@ -432,6 +444,41 @@ public class RemoteFetchService extends Service {
 			}
 			mDb.close();
 			return Boolean.FALSE;
+		}
+
+		public void deleteFromHistory(int id) {
+			mDb = new CustomSQLiteOpenHelper(mCtx).getWritableDatabase();
+			try {
+				mDb.delete(TABLE_NAME, COLLUMN_WIDGET_ID + " =? ",
+						new String[] { String.valueOf(id) });
+			} catch (Exception e) {
+				Log.e("DB Delete ERROR : deleteFromHistory : ", e.toString());
+			}
+			mDb.close();
+		}
+
+		public void storeToHistory(ArrayList<ListItem> list, int id) {
+			mDb = new CustomSQLiteOpenHelper(mCtx).getWritableDatabase();
+
+			for (ListItem l : list) {
+				ContentValues values = new ContentValues();
+				// this is how you add a value to a ContentValues object
+				// we are passing in a key string and a value string
+				// each time
+				values.put(COLLUMN_HEADING, l.heading);
+				values.put(COLLUMN_CONTENT, l.content);
+				values.put(COLLUMN_URL, l.url);
+				values.put(COLLUMN_WIDGET_ID, id);
+				values.put(COLLUMN_TIMESTAMP,
+						(int) (new Date().getTime() / 1000));
+
+				try {
+					mDb.insert(TABLE_NAME, null, values);
+				} catch (Exception e) {
+					Log.e("DB Insert ERROR : insertRow : ", e.toString());
+				}
+			}
+			mDb.close();
 		}
 
 	}

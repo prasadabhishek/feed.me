@@ -5,13 +5,13 @@ import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -74,6 +74,8 @@ public class ConfigActivity extends Activity implements OnClickListener,
 
 		CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
 		sql.getWritableDatabase();
+
+		setPref(mCtx, "update_interval_" + appWidgetId, 60);
 	}
 
 	/**
@@ -95,7 +97,7 @@ public class ConfigActivity extends Activity implements OnClickListener,
 		if (v.getId() == R.id.widgetStartButton) {
 			if (HistoryText.getText().toString().isEmpty()) {
 				HistoryText.setText("");
-				HistoryText.setError("Please Enter Value 1 - 20");
+				HistoryText.setError("Please Enter Value 0 - 20");
 			} else if (MaxText.getText().toString().isEmpty()) {
 				MaxText.setText("");
 				MaxText.setError("Please Enter Value 1 - 4");
@@ -199,8 +201,8 @@ public class ConfigActivity extends Activity implements OnClickListener,
 			if (!HistoryText.getText().toString().isEmpty()) {
 				String history = HistoryText.getText().toString();
 				if (Integer.valueOf(history) > 20
-						|| Integer.valueOf(history) < 1) {
-					Toast.makeText(mCtx, "Please Enter Value 1 - 20",
+						|| Integer.valueOf(history) < 0) {
+					Toast.makeText(mCtx, "Please Enter Value 0 - 20",
 							Toast.LENGTH_LONG);
 					HistoryText.setText("");
 					HistoryText.setError("Please Enter Value 1 - 20");
@@ -249,7 +251,11 @@ public class ConfigActivity extends Activity implements OnClickListener,
 		String COLLUMN_WIDGET_ID = "WidgetId";
 		String COLLUMN_TIMESTAMP = "TimeStamp";
 		String SELECTED_TABLE_NAME = "Selected_History";
+		String CUSTOM_TABLE_NAME = "CustomTopics";
 		String COLLUMN_FLAG = "Flag";
+		String COLLUMN_HEADING = "Heading";
+		String COLLUMN_CONTENT = "Content";
+		String COLLUMN_URL = "Url";
 
 		private static final String DATABASE_NAME = "feedme.db";
 		private static final int DATABASE_VERSION = 1;
@@ -268,10 +274,17 @@ public class ConfigActivity extends Activity implements OnClickListener,
 			String newTableQueryString = "create table " + TABLE_NAME + " ("
 					+ COLLUMN_ROW_ID
 					+ " integer primary key autoincrement not null,"
-					+ COLLUMN_TOPIC + " text," + COLLUMN_WIDGET_ID
-					+ " integer," + COLLUMN_TIMESTAMP + " integer" + ");";
+					+ COLLUMN_HEADING + " text," + COLLUMN_CONTENT + " text,"
+					+ COLLUMN_URL + " text," + COLLUMN_WIDGET_ID + " integer,"
+					+ COLLUMN_TIMESTAMP + " integer" + ");";
 			String newSelectedTableQueryString = "create table "
 					+ SELECTED_TABLE_NAME + " (" + COLLUMN_ROW_ID
+					+ " integer primary key autoincrement not null,"
+					+ COLLUMN_TOPIC + " text," + COLLUMN_WIDGET_ID
+					+ " integer," + COLLUMN_TIMESTAMP + " integer,"
+					+ COLLUMN_FLAG + " integer" + ");";
+			String newCustomTableQueryString = "create table "
+					+ CUSTOM_TABLE_NAME + " (" + COLLUMN_ROW_ID
 					+ " integer primary key autoincrement not null,"
 					+ COLLUMN_TOPIC + " text," + COLLUMN_WIDGET_ID
 					+ " integer," + COLLUMN_TIMESTAMP + " integer,"
@@ -280,6 +293,7 @@ public class ConfigActivity extends Activity implements OnClickListener,
 			try {
 				db.execSQL(newTableQueryString);
 				db.execSQL(newSelectedTableQueryString);
+				db.execSQL(newCustomTableQueryString);
 			} catch (Exception e) {
 				Log.e("DB Error while creating Tables", e.toString());
 			}
@@ -293,18 +307,26 @@ public class ConfigActivity extends Activity implements OnClickListener,
 			String newTableQueryString = "create table " + TABLE_NAME + " ("
 					+ COLLUMN_ROW_ID
 					+ " integer primary key autoincrement not null,"
-					+ COLLUMN_TOPIC + " text," + COLLUMN_WIDGET_ID
-					+ " integer," + COLLUMN_TIMESTAMP + " integer" + ");";
+					+ COLLUMN_HEADING + " text," + COLLUMN_CONTENT + " text,"
+					+ COLLUMN_URL + " text," + COLLUMN_WIDGET_ID + " integer,"
+					+ COLLUMN_TIMESTAMP + " integer" + ");";
 			String newSelectedTableQueryString = "create table "
 					+ SELECTED_TABLE_NAME + " (" + COLLUMN_ROW_ID
 					+ " integer primary key autoincrement not null,"
 					+ COLLUMN_TOPIC + " text," + COLLUMN_WIDGET_ID
 					+ " integer," + COLLUMN_TIMESTAMP + " integer"
 					+ COLLUMN_FLAG + " integer" + ");";
+			String newCustomTableQueryString = "create table "
+					+ CUSTOM_TABLE_NAME + " (" + COLLUMN_ROW_ID
+					+ " integer primary key autoincrement not null,"
+					+ COLLUMN_TOPIC + " text," + COLLUMN_WIDGET_ID
+					+ " integer," + COLLUMN_TIMESTAMP + " integer,"
+					+ COLLUMN_FLAG + " integer" + ");";
 			// execute the query string to the database.
 			try {
 				db.execSQL(newTableQueryString);
 				db.execSQL(newSelectedTableQueryString);
+				db.execSQL(newCustomTableQueryString);
 			} catch (Exception e) {
 				Log.e("DB Error while creating Tables", e.toString());
 			}

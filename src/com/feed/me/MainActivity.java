@@ -1,6 +1,7 @@
 package com.feed.me;
 
 import android.app.Activity;
+import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,6 +9,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,7 +21,7 @@ public class MainActivity extends FragmentActivity {
 
 	private ViewPager mPager;
 	private ScreenSlidePagerAdapter mPagerAdapter;
-	private static final int NUM_PAGES = 4;
+	private static final int NUM_PAGES = 5;
 	private CirclePageIndicator mIndicator;
 
 	@Override
@@ -52,14 +54,21 @@ public class MainActivity extends FragmentActivity {
 				return new PageTwoFragment();
 			else if (position == 2)
 				return new PageThreeFragment();
-			else
+			else if (position == 3)
 				return new PageFourFragment();
+			else
+				return new PageFiveFragment();
 		}
 
 		@Override
 		public int getCount() {
 			return NUM_PAGES;
 		}
+	}
+
+	@Override
+	public void onBackPressed() {
+		this.finish();
 	}
 
 	public class DepthPageTransformer implements ViewPager.PageTransformer {

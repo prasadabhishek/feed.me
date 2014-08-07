@@ -1,11 +1,16 @@
 package com.feed.me;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import android.appwidget.AppWidgetManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -15,6 +20,7 @@ import android.graphics.Typeface;
 import android.graphics.Paint.Align;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 import android.widget.RemoteViews;
@@ -34,9 +40,11 @@ public class ListProvider implements RemoteViewsFactory {
 	private Context context = null;
 	private int appWidgetId;
 	private int theme;
+	Context mCtx;
 
 	public ListProvider(Context context, Intent intent) {
 		this.context = context;
+		mCtx = context;
 		appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
 				AppWidgetManager.INVALID_APPWIDGET_ID);
 		theme = getPref(context, "theme_" + appWidgetId);
@@ -51,11 +59,19 @@ public class ListProvider implements RemoteViewsFactory {
 	}
 
 	private void populateListItem() {
-		if (RemoteFetchService.listItemList != null)
-			listItemList = (ArrayList<ListItem>) RemoteFetchService.listItemList
-					.clone();
-		else
+		CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
+		try {
+			if (RemoteFetchService.listItemList != null) {
+				listItemList = (ArrayList<ListItem>) RemoteFetchService.listItemList
+						.clone();
+			} else {
+				Log.d("Empty List " + String.valueOf(appWidgetId), " this ");
+				listItemList = sql.getfromHistory(appWidgetId);
+			}
+		} catch (Exception e) {
+			Log.d("populateListItem", e.toString());
 			listItemList = new ArrayList<ListItem>();
+		}
 
 	}
 
@@ -67,32 +83,6 @@ public class ListProvider implements RemoteViewsFactory {
 	@Override
 	public long getItemId(int position) {
 		return position;
-	}
-
-	public Bitmap buildUpdateHeading(String time) {
-		WindowManager wm = (WindowManager) context
-				.getSystemService(Context.WINDOW_SERVICE);
-		Display display = wm.getDefaultDisplay();
-		Point size = new Point();
-		display.getSize(size);
-		display.getSize(size);
-		int width = size.x;
-		int height = size.y;
-		Bitmap myBitmap = Bitmap.createBitmap(width, 25,
-				Bitmap.Config.ARGB_4444);
-		Canvas myCanvas = new Canvas(myBitmap);
-		Paint paint = new Paint();
-		Typeface face = Typeface.createFromAsset(context.getAssets(),
-				"Anke.ttf");
-		paint.setAntiAlias(true);
-		paint.setSubpixelText(true);
-		paint.setTypeface(face);
-		paint.setStyle(Paint.Style.FILL);
-		paint.setColor(Color.WHITE);
-		paint.setTextSize(25);
-		paint.setTextAlign(Align.LEFT);
-		myCanvas.drawText(time, 0, 20f, paint);
-		return myBitmap;
 	}
 
 	/*
@@ -181,4 +171,66 @@ public class ListProvider implements RemoteViewsFactory {
 	public void onDestroy() {
 	}
 
+	private class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
+		String TABLE_NAME = "History";
+		String COLLUMN_ROW_ID = "Id";
+		String COLLUMN_TOPIC = "Topic";
+		String COLLUMN_WIDGET_ID = "WidgetId";
+		String COLLUMN_TIMESTAMP = "TimeStamp";
+		String SELECTED_TABLE_NAME = "Selected_History";
+		String CUSTOM_TABLE_NAME = "CustomTopics";
+		String COLLUMN_FLAG = "Flag";
+		String COLLUMN_HEADING = "Heading";
+		String COLLUMN_CONTENT = "Content";
+		String COLLUMN_URL = "Url";
+
+		private static final String DATABASE_NAME = "feedme.db";
+		private static final int DATABASE_VERSION = 1;
+		SQLiteDatabase mDb;
+
+		public CustomSQLiteOpenHelper(Context context) {
+			super(context, DATABASE_NAME, null, DATABASE_VERSION);
+			mCtx = context;
+		}
+
+		// TODO: override the constructor and other methods for the parent class
+		@Override
+		public void onCreate(SQLiteDatabase db) {
+			// the SQLite query string that will create our 3 column database
+			// table.
+		}
+
+		@Override
+		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			// NOTHING TO DO HERE. THIS IS THE ORIGINAL DATABASE VERSION.
+			// OTHERWISE, YOU WOULD SPECIFIY HOW TO UPGRADE THE DATABASE
+			// FROM OLDER VERSIONS.
+		}
+
+		public ArrayList<ListItem> getfromHistory(int id) {
+			mDb = new CustomSQLiteOpenHelper(mCtx).getWritableDatabase();
+
+			ArrayList<ListItem> result = new ArrayList<ListItem>();
+			try {
+				Cursor c = mDb
+						.rawQuery(
+								"SELECT heading, content, url from History where WidgetId=?",
+								new String[] { String.valueOf(id) });
+				c.moveToFirst();
+
+				while (!c.isAfterLast()) {
+					ListItem l = new ListItem();
+					l.heading = c.getString(0);
+					l.content = c.getString(1);
+					l.url = c.getString(2);
+					result.add(l);
+					c.moveToNext();
+				}
+			} catch (Exception e) {
+				Log.e("DB Insert ERROR : getfromHistory : ", e.toString());
+			}
+			mDb.close();
+			return result;
+		}
+	}
 }

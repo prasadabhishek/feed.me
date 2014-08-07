@@ -1,6 +1,7 @@
 package com.feed.me;
 
 import android.app.Activity;
+import android.net.Uri;
 import android.os.Bundle;
 
 import java.util.ArrayList;
@@ -13,22 +14,33 @@ import org.json.JSONArray;
 
 import android.app.ListActivity;
 import android.appwidget.AppWidgetManager;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.CharArrayBuffer;
+import android.database.ContentObserver;
 import android.database.Cursor;
+import android.database.DataSetObserver;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Browser;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 
 import com.mobeta.android.dslv.DragSortListView;
 import com.mobeta.android.dslv.DragSortListView.RemoveListener;
 
-public class HistoryActivity extends ListActivity {
+public class HistoryActivity extends ListActivity implements OnClickListener {
 
 	private ArrayAdapter<String> adapter;
 	private Context mCtx = this;
@@ -36,6 +48,8 @@ public class HistoryActivity extends ListActivity {
 	private int appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 	private int max_history;
 	Boolean doUpdate = Boolean.FALSE;
+	ImageButton button;
+
 	private DragSortListView.DropListener onDrop = new DragSortListView.DropListener() {
 		@Override
 		public void drop(int from, int to) {
@@ -49,6 +63,25 @@ public class HistoryActivity extends ListActivity {
 		}
 	};
 
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+		Intent addintent = new Intent(mCtx, AddActivity.class);
+		addintent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+		addintent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		mCtx.startActivity(addintent);
+		this.finish();
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu items for use in the action bar
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.add, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
 	private RemoveListener onRemove = new DragSortListView.RemoveListener() {
 		@Override
 		public void remove(int which) {
@@ -57,7 +90,21 @@ public class HistoryActivity extends ListActivity {
 				String item = adapter.getItem(which);
 				adapter.remove(item);
 				CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
-				sql.insertRow(item, appWidgetId);
+				if (sql.checkinCustom(item, appWidgetId)) {
+					sql.deletefromCustom(item, appWidgetId);
+				} else {
+					sql.insertRow(item, appWidgetId);
+					ArrayList<String> arrayList;
+
+					arrayList = new ArrayList<String>(getBrowserHistory()
+							.keySet());
+					/* initialize the selected Db */
+
+					adapter = new ArrayAdapter<String>(mCtx,
+							R.layout.list_item_checkable, R.id.text, arrayList);
+					setListAdapter(adapter);
+				}
+
 				doUpdate = Boolean.TRUE;
 			} catch (Exception e) {
 				Log.d("Remove Error", e.toString());
@@ -72,11 +119,11 @@ public class HistoryActivity extends ListActivity {
 		setContentView(R.layout.historylistlayout);
 
 		assignAppWidgetId();
-
+		Bundle extras = getIntent().getExtras();
+		doUpdate = extras.getBoolean("TopicAdded");
 		// sql.deleteSelectedHistory();
 
 		max_history = getPref(this, "history_" + appWidgetId);
-
 		ArrayList<String> arrayList;
 
 		arrayList = new ArrayList<String>(getBrowserHistory().keySet());
@@ -113,42 +160,54 @@ public class HistoryActivity extends ListActivity {
 		for (int i = 0; i < adapter.getCount(); i++) {
 			Log.d("item at : " + String.valueOf(i), adapter.getItem(i));
 		}
-		setPref(mCtx, "history_cutomized_" + String.valueOf(appWidgetId), 1);
 		/* update the widget */
 		if (doUpdate)
 			new WidgetProvider().onUpdate(mCtx,
 					AppWidgetManager.getInstance(mCtx),
 					new int[] { appWidgetId });
-		finish();
+		this.finish();
 	}
 
 	public LinkedHashMap<String, String> getBrowserHistory() {
 		LinkedHashMap<String, String> hash = new LinkedHashMap<String, String>();
-		String title;
 		String temp, temp_with_html;
 		Integer count = 0;
-		CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
-		Cursor mCur = mCtx.getContentResolver().query(Browser.BOOKMARKS_URI,
-				Browser.HISTORY_PROJECTION, null, null,
-				Browser.BookmarkColumns.DATE + " DESC");
-		mCur.moveToFirst();
-		if (mCur.moveToFirst() && mCur.getCount() > 0) {
-			while (mCur.isAfterLast() == false && count < max_history) {
-				title = mCur.getString(Browser.HISTORY_PROJECTION_TITLE_INDEX);
-				if (title.contains(SEARCH_TOKEN)) {
-					temp = title.subSequence(0,
-							((title.length() - SEARCH_TOKEN.length()) - 3))
-							.toString();
-					temp = temp.trim();
-					temp_with_html = temp.replaceAll(" ", "%20");
-					if (!hash.containsKey(temp)
-							&& !sql.isDeleted(temp, appWidgetId)) {
-						hash.put(temp, temp_with_html);
-						count++;
+
+		try {
+			CustomSQLiteOpenHelper sql = new CustomSQLiteOpenHelper(mCtx);
+			/* Add Custom Topics */
+			ArrayList<String> customList = sql.getCustomList(appWidgetId);
+			if (customList != null) {
+				for (int i = 0; i < customList.size(); i++) {
+					hash.put(customList.get(i), customList.get(i).trim()
+							.replaceAll(" ", "%20"));
+				}
+			}
+			/* Add Browser History */
+			Cursor mCur = mCtx.getContentResolver().query(Browser.SEARCHES_URI,
+					Browser.SEARCHES_PROJECTION, null, null,
+					Browser.SearchColumns.DATE + " DESC");
+			Log.d("GetHistory_HistoryActivity_cursor_size",
+					String.valueOf(mCur.getCount()));
+			if (mCur != null) {
+				mCur.moveToFirst();
+				if (mCur.moveToFirst() && mCur.getCount() > 0) {
+					while (mCur.isAfterLast() == false && count < max_history) {
+						temp = mCur.getString(mCur
+								.getColumnIndex(Browser.SearchColumns.SEARCH));
+						temp = temp.trim();
+						temp_with_html = temp.replaceAll(" ", "%20");
+						if (!hash.containsKey(temp)
+								&& !sql.isDeleted(temp, appWidgetId)) {
+							hash.put(temp, temp_with_html);
+							count++;
+						}
+						mCur.moveToNext();
 					}
 				}
-				mCur.moveToNext();
 			}
+		} catch (Exception e) {
+			Log.d("GetHistory_HistoryActivity", e.toString());
 		}
 		return hash;
 	}
@@ -191,6 +250,7 @@ public class HistoryActivity extends ListActivity {
 		String COLLUMN_WIDGET_ID = "WidgetId";
 		String COLLUMN_TIMESTAMP = "TimeStamp";
 		String COLLUMN_FLAG = "Flag";
+		String CUSTOM_TABLE_NAME = "CustomTopics";
 
 		private static final String DATABASE_NAME = "feedme.db";
 		private static final int DATABASE_VERSION = 1;
@@ -269,6 +329,60 @@ public class HistoryActivity extends ListActivity {
 			mDb.close();
 			return Boolean.FALSE;
 		}
+
+		public ArrayList<String> getCustomList(int id) {
+			mDb = new CustomSQLiteOpenHelper(mCtx).getWritableDatabase();
+			ArrayList<String> result = new ArrayList<String>();
+			Cursor c;
+			c = mDb.rawQuery(
+					"Select Topic from CustomTopics where WidgetId = ?",
+					new String[] { String.valueOf(id) });
+			c.moveToFirst();
+
+			while (!c.isAfterLast()) {
+				result.add(c.getString(0));
+				c.moveToNext();
+			}
+
+			return result;
+		}
+
+		public boolean checkinCustom(String val, int id) {
+			mDb = new CustomSQLiteOpenHelper(mCtx).getWritableDatabase();
+			try {
+				Cursor c = mDb.rawQuery("SELECT Topic FROM "
+						+ CUSTOM_TABLE_NAME + " WHERE " + COLLUMN_TOPIC
+						+ " =? AND " + COLLUMN_WIDGET_ID + " =? ",
+						new String[] { val, String.valueOf(id) });
+				if (c != null) {
+					if (c.getCount() < 1) {
+						return false;
+					} else
+						return true;
+				} else
+					return false;
+			} catch (Exception e) {
+				Log.d("checkinCustom", e.getMessage());
+				return false;
+			}
+		}
+
+		public void deletefromCustom(String val, int id) {
+			mDb = new CustomSQLiteOpenHelper(mCtx).getWritableDatabase();
+			Cursor c = null;
+			try {
+				mDb.delete(CUSTOM_TABLE_NAME, COLLUMN_TOPIC + " =? AND "
+						+ COLLUMN_WIDGET_ID + " =? ", new String[] { val,
+						String.valueOf(id) });
+			} catch (Exception e) {
+				Log.d("deletefromCustom", e.getMessage());
+			}
+		}
+	}
+
+	@Override
+	public void onClick(View arg0) {
+		// TODO Auto-generated method stub
 
 	}
 }

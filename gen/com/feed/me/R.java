@@ -487,6 +487,11 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     public static final class dimen {
         /**  Default screen margins, per the Android Design guidelines. 
 
+         Example customization of dimensions originally defined in res/values/dimens.xml
+         (such as screen margins) for screens with more than 820dp of available width. This
+         would include 7" and 10" devices in landscape (~960dp and ~1280dp respectively).
+    
+
          Customize dimensions originally defined in res/values/dimens.xml (such as
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
@@ -510,100 +515,110 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int section_div_height=0x7f090010;
     }
     public static final class drawable {
-        public static final int app=0x7f020000;
-        public static final int app2=0x7f020001;
-        public static final int app3=0x7f020002;
-        public static final int app4=0x7f020003;
-        public static final int delete_x=0x7f020004;
-        public static final int drag_handle=0x7f020005;
-        public static final int ic_launcher=0x7f020006;
-        public static final int ic_launcher_dark=0x7f020007;
-        public static final int icon_32=0x7f020008;
-        public static final int icon_dark_64=0x7f020009;
-        public static final int icon_plain_64=0x7f02000a;
-        public static final int refresh=0x7f02000b;
-        public static final int refresh_black=0x7f02000c;
-        public static final int vpi__tab_indicator=0x7f02000d;
-        public static final int vpi__tab_selected_focused_holo=0x7f02000e;
-        public static final int vpi__tab_selected_holo=0x7f02000f;
-        public static final int vpi__tab_selected_pressed_holo=0x7f020010;
-        public static final int vpi__tab_unselected_focused_holo=0x7f020011;
-        public static final int vpi__tab_unselected_holo=0x7f020012;
-        public static final int vpi__tab_unselected_pressed_holo=0x7f020013;
-        public static final int widget_preview=0x7f020014;
+        public static final int additem=0x7f020000;
+        public static final int app=0x7f020001;
+        public static final int app2=0x7f020002;
+        public static final int app3=0x7f020003;
+        public static final int app4=0x7f020004;
+        public static final int app5=0x7f020005;
+        public static final int delete_x=0x7f020006;
+        public static final int drag_handle=0x7f020007;
+        public static final int ic_add=0x7f020008;
+        public static final int ic_launcher=0x7f020009;
+        public static final int ic_launcher_dark=0x7f02000a;
+        public static final int icon_32=0x7f02000b;
+        public static final int icon_dark_64=0x7f02000c;
+        public static final int icon_plain_64=0x7f02000d;
+        public static final int refresh=0x7f02000e;
+        public static final int refresh_black=0x7f02000f;
+        public static final int vpi__tab_indicator=0x7f020010;
+        public static final int vpi__tab_selected_focused_holo=0x7f020011;
+        public static final int vpi__tab_selected_holo=0x7f020012;
+        public static final int vpi__tab_selected_pressed_holo=0x7f020013;
+        public static final int vpi__tab_unselected_focused_holo=0x7f020014;
+        public static final int vpi__tab_unselected_holo=0x7f020015;
+        public static final int vpi__tab_unselected_pressed_holo=0x7f020016;
+        public static final int widget_preview=0x7f020017;
     }
     public static final class id {
-        public static final int ListLayout=0x7f05002a;
-        public static final int ListLayout_transparent=0x7f050031;
-        public static final int ListLayout_white=0x7f050038;
-        public static final int ListLayout_white_transparent=0x7f05003f;
+        public static final int ListLayout=0x7f050030;
+        public static final int ListLayout_transparent=0x7f050037;
+        public static final int ListLayout_white=0x7f05003e;
+        public static final int ListLayout_white_transparent=0x7f050045;
+        public static final int action_add=0x7f05004c;
+        public static final int addButton=0x7f050011;
+        public static final int addLayout=0x7f05000f;
+        public static final int addList=0x7f050013;
+        public static final int addListLayout=0x7f050012;
         public static final int bottom=0x7f050003;
         public static final int clickRemove=0x7f050005;
         public static final int click_remove=0x7f05000b;
-        public static final int content=0x7f05000e;
-        public static final int content_transparent=0x7f05001e;
-        public static final int content_white=0x7f050022;
-        public static final int content_white_transparent=0x7f050026;
-        public static final int customize_link=0x7f050016;
+        public static final int container=0x7f05000c;
+        public static final int content=0x7f050014;
+        public static final int content_transparent=0x7f050024;
+        public static final int content_white=0x7f050028;
+        public static final int content_white_transparent=0x7f05002c;
+        public static final int customize_link=0x7f05001c;
         public static final int drag_handle=0x7f05000a;
-        public static final int edit_history=0x7f050046;
-        public static final int empty_view=0x7f050030;
-        public static final int empty_view_transparent=0x7f050037;
-        public static final int empty_view_white=0x7f05003e;
-        public static final int empty_view_white_transparent=0x7f050045;
-        public static final int feedButton=0x7f05002e;
-        public static final int feedButton_transparent=0x7f050035;
-        public static final int feedButton_white=0x7f05003c;
-        public static final int feedButton_white_transparent=0x7f050043;
+        public static final int editText=0x7f050010;
+        public static final int edit_history=0x7f05004d;
+        public static final int empty_view=0x7f050036;
+        public static final int empty_view_transparent=0x7f05003d;
+        public static final int empty_view_white=0x7f050044;
+        public static final int empty_view_white_transparent=0x7f05004b;
+        public static final int feedButton=0x7f050034;
+        public static final int feedButton_transparent=0x7f05003b;
+        public static final int feedButton_white=0x7f050042;
+        public static final int feedButton_white_transparent=0x7f050049;
         public static final int flingRemove=0x7f050006;
-        public static final int heading=0x7f05001a;
-        public static final int heading_transparent=0x7f05001d;
-        public static final int heading_white=0x7f050021;
-        public static final int heading_white_transparent=0x7f050025;
-        public static final int imageView1=0x7f05000d;
-        public static final int indicator=0x7f050029;
-        public static final int listViewWidget=0x7f05002f;
-        public static final int listViewWidget_transparent=0x7f050036;
-        public static final int listViewWidget_white=0x7f05003d;
-        public static final int listViewWidget_white_transparent=0x7f050044;
-        public static final int list_parent=0x7f050019;
-        public static final int list_parent_transparent=0x7f05001c;
-        public static final int list_parent_white=0x7f050020;
-        public static final int list_parent_white_transparent=0x7f050024;
-        public static final int loading_view=0x7f05002c;
-        public static final int loading_view_transparent=0x7f050033;
-        public static final int loading_view_white=0x7f05003a;
-        public static final int loading_view_white_transparent=0x7f050041;
-        public static final int main_text=0x7f05000c;
-        public static final int max_history_textview=0x7f050012;
-        public static final int max_items_from_history=0x7f050013;
-        public static final int max_items_per_history=0x7f050015;
-        public static final int max_per_history_textview=0x7f050014;
-        public static final int name_view=0x7f05002b;
-        public static final int name_view_transparent=0x7f050032;
-        public static final int name_view_white=0x7f050039;
-        public static final int name_view_white_transparent=0x7f050040;
+        public static final int heading=0x7f050020;
+        public static final int heading_transparent=0x7f050023;
+        public static final int heading_white=0x7f050027;
+        public static final int heading_white_transparent=0x7f05002b;
+        public static final int imageView1=0x7f05000e;
+        public static final int indicator=0x7f05002f;
+        public static final int listViewWidget=0x7f050035;
+        public static final int listViewWidget_transparent=0x7f05003c;
+        public static final int listViewWidget_white=0x7f050043;
+        public static final int listViewWidget_white_transparent=0x7f05004a;
+        public static final int list_parent=0x7f05001f;
+        public static final int list_parent_transparent=0x7f050022;
+        public static final int list_parent_white=0x7f050026;
+        public static final int list_parent_white_transparent=0x7f05002a;
+        public static final int loading_view=0x7f050032;
+        public static final int loading_view_transparent=0x7f050039;
+        public static final int loading_view_white=0x7f050040;
+        public static final int loading_view_white_transparent=0x7f050047;
+        public static final int main_text=0x7f05000d;
+        public static final int max_history_textview=0x7f050018;
+        public static final int max_items_from_history=0x7f050019;
+        public static final int max_items_per_history=0x7f05001b;
+        public static final int max_per_history_textview=0x7f05001a;
+        public static final int name_view=0x7f050031;
+        public static final int name_view_transparent=0x7f050038;
+        public static final int name_view_white=0x7f05003f;
+        public static final int name_view_white_transparent=0x7f050046;
         public static final int none=0x7f050000;
         public static final int onDown=0x7f050007;
         public static final int onLongPress=0x7f050009;
         public static final int onMove=0x7f050008;
-        public static final int pager=0x7f050028;
-        public static final int refreshButton=0x7f05002d;
-        public static final int refreshButton_transparent=0x7f050034;
-        public static final int refreshButton_white=0x7f05003b;
-        public static final int refreshButton_white_transparent=0x7f050042;
-        public static final int text=0x7f050018;
-        public static final int theme_spinner=0x7f05000f;
+        public static final int pager=0x7f05002e;
+        public static final int refreshButton=0x7f050033;
+        public static final int refreshButton_transparent=0x7f05003a;
+        public static final int refreshButton_white=0x7f050041;
+        public static final int refreshButton_white_transparent=0x7f050048;
+        public static final int text=0x7f05001e;
+        public static final int theme_spinner=0x7f050015;
         public static final int top=0x7f050004;
         public static final int triangle=0x7f050001;
         public static final int underline=0x7f050002;
-        public static final int update_interval_spinner=0x7f050011;
-        public static final int update_interval_textview=0x7f050010;
-        public static final int url=0x7f05001b;
-        public static final int url_transparent=0x7f05001f;
-        public static final int url_white=0x7f050023;
-        public static final int url_white_transparent=0x7f050027;
-        public static final int widgetStartButton=0x7f050017;
+        public static final int update_interval_spinner=0x7f050017;
+        public static final int update_interval_textview=0x7f050016;
+        public static final int url=0x7f050021;
+        public static final int url_transparent=0x7f050025;
+        public static final int url_white=0x7f050029;
+        public static final int url_white_transparent=0x7f05002d;
+        public static final int widgetStartButton=0x7f05001d;
     }
     public static final class integer {
         public static final int default_circle_indicator_orientation=0x7f080000;
@@ -613,43 +628,51 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int default_underline_indicator_fade_length=0x7f080004;
     }
     public static final class layout {
-        public static final int activity_main=0x7f030000;
-        public static final int activity_main_2=0x7f030001;
-        public static final int activity_main_3=0x7f030002;
-        public static final int activity_main_4=0x7f030003;
-        public static final int configactivity=0x7f030004;
-        public static final int historylistlayout=0x7f030005;
-        public static final int list_item_checkable=0x7f030006;
-        public static final int list_row=0x7f030007;
-        public static final int list_row_transparent=0x7f030008;
-        public static final int list_row_white=0x7f030009;
-        public static final int list_row_white_transparent=0x7f03000a;
-        public static final int main=0x7f03000b;
-        public static final int widget_layout=0x7f03000c;
-        public static final int widget_layout_transparent=0x7f03000d;
-        public static final int widget_layout_white=0x7f03000e;
-        public static final int widget_layout_white_transparent=0x7f03000f;
+        public static final int activity_add=0x7f030000;
+        public static final int activity_main=0x7f030001;
+        public static final int activity_main_2=0x7f030002;
+        public static final int activity_main_3=0x7f030003;
+        public static final int activity_main_4=0x7f030004;
+        public static final int activity_main_5=0x7f030005;
+        public static final int addtopic=0x7f030006;
+        public static final int configactivity=0x7f030007;
+        public static final int fragment_add=0x7f030008;
+        public static final int historylistlayout=0x7f030009;
+        public static final int list_item_checkable=0x7f03000a;
+        public static final int list_row=0x7f03000b;
+        public static final int list_row_transparent=0x7f03000c;
+        public static final int list_row_white=0x7f03000d;
+        public static final int list_row_white_transparent=0x7f03000e;
+        public static final int main=0x7f03000f;
+        public static final int widget_layout=0x7f030010;
+        public static final int widget_layout_transparent=0x7f030011;
+        public static final int widget_layout_white=0x7f030012;
+        public static final int widget_layout_white_transparent=0x7f030013;
     }
     public static final class menu {
-        public static final int main=0x7f0d0000;
+        public static final int add=0x7f0d0000;
+        public static final int main=0x7f0d0001;
     }
     public static final class string {
-        public static final int action_settings=0x7f0c0002;
+        public static final int action_add=0x7f0c0002;
         public static final int app_name=0x7f0c0000;
-        public static final int customize=0x7f0c000f;
+        public static final int customize=0x7f0c0010;
         public static final int edit_history=0x7f0c0001;
-        public static final int empty_string=0x7f0c0007;
-        public static final int history_hint=0x7f0c000d;
-        public static final int max_hint=0x7f0c000e;
-        public static final int max_history=0x7f0c000b;
-        public static final int max_per_history=0x7f0c000c;
+        public static final int empty_string=0x7f0c0008;
+        public static final int hello_world=0x7f0c0012;
+        public static final int history_hint=0x7f0c000e;
+        public static final int max_hint=0x7f0c000f;
+        public static final int max_history=0x7f0c000c;
+        public static final int max_per_history=0x7f0c000d;
         public static final int page_1=0x7f0c0003;
         public static final int page_2=0x7f0c0004;
         public static final int page_3=0x7f0c0005;
         public static final int page_4=0x7f0c0006;
-        public static final int start_widget=0x7f0c0008;
-        public static final int theme_string=0x7f0c0009;
-        public static final int theme_update_interval=0x7f0c000a;
+        public static final int page_5=0x7f0c0007;
+        public static final int start_widget=0x7f0c0009;
+        public static final int theme_string=0x7f0c000a;
+        public static final int theme_update_interval=0x7f0c000b;
+        public static final int title_activity_add=0x7f0c0011;
     }
     public static final class style {
         /** 

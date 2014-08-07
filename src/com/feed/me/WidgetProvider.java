@@ -21,6 +21,7 @@ import android.graphics.Paint.Align;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -60,9 +61,10 @@ public class WidgetProvider extends AppWidgetProvider {
 	 * updates the widget
 	 */
 
-	private PendingIntent createClockTickIntent(Context context) {
+	private PendingIntent createClockTickIntent(Context context, int id) {
 		Intent intent = new Intent(CLOCK_WIDGET_UPDATE);
-		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0,
+		intent.putExtra("id", id);
+		PendingIntent pendingIntent = PendingIntent.getBroadcast(context, id,
 				intent, PendingIntent.FLAG_UPDATE_CURRENT);
 		return pendingIntent;
 	}
@@ -76,24 +78,33 @@ public class WidgetProvider extends AppWidgetProvider {
 	}
 
 	@Override
-	public void onDisabled(Context context) {
-		super.onDisabled(context);
-		Log.d("onDisabled", "Widget Provider disabled. Turning off timer");
-		AlarmManager alarmManager = (AlarmManager) context
-				.getSystemService(Context.ALARM_SERVICE);
-		alarmManager.cancel(createClockTickIntent(context));
-		setBoolPref(context, "alarm_set", Boolean.FALSE);
+	public void onDeleted(Context context, int[] appWidgetIds) {
+
+		final int N = appWidgetIds.length;
+
+		for (int i = 0; i < N; i++) {
+			Log.d("onDeleted", "Widget Provider deleted. Turning off timer. "
+					+ String.valueOf(appWidgetIds[i]));
+			AlarmManager alarmManager = (AlarmManager) context
+					.getSystemService(Context.ALARM_SERVICE);
+			alarmManager
+					.cancel(createClockTickIntent(context, appWidgetIds[i]));
+			setBoolPref(context,
+					"alarm_set_" + String.valueOf(appWidgetIds[i]),
+					Boolean.FALSE);
+		}
 	}
 
 	@Override
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager,
 			int[] appWidgetIds) {
+		int appWidgetId = 0;
 		try {
 			final int N = appWidgetIds.length;
 
 			for (int i = 0; i < N; i++) {
 				RemoteViews remoteViews;
-
+				appWidgetId = appWidgetIds[i];
 				themeNumber = getPref(context, "theme_" + appWidgetIds[i]);
 				Log.d("onUpdate theme number : ", String.valueOf(themeNumber));
 
@@ -112,21 +123,44 @@ public class WidgetProvider extends AppWidgetProvider {
 
 				if (update) {
 					if (!getBoolPref(context, "alarm_set_" + appWidgetIds[i])) {
+						Log.d("ALARM SIGNAL", String.valueOf(updateInterval));
+						Log.d("ALARM STATUS",
+								String.valueOf(getBoolPref(
+										context,
+										"alarm_set_"
+												+ String.valueOf(appWidgetIds[i]))));
+
 						AlarmManager alarmManager = (AlarmManager) context
 								.getSystemService(Context.ALARM_SERVICE);
-						alarmManager.setRepeating(AlarmManager.RTC,
-								System.currentTimeMillis() + (10 * 60000),
-								(10 * 60000), createClockTickIntent(context));
-						Log.d("ALARM SIGNAL", String.valueOf(updateInterval));
-						Log.d("ALARM STATUS", String.valueOf(getBoolPref(
-								context, "alarm_set")));
-						setBoolPref(context, "alarm_set_" + appWidgetIds[i],
+						alarmManager
+								.setRepeating(
+										AlarmManager.RTC_WAKEUP,
+										System.currentTimeMillis()
+												+ (updateInterval * 60000),
+										(updateInterval * 60000),
+										createClockTickIntent(context,
+												appWidgetIds[i]));
+						setBoolPref(context,
+								"alarm_set_" + String.valueOf(appWidgetIds[i]),
 								Boolean.TRUE);
+						Log.d("ALARM SET ",
+								String.valueOf(updateInterval)
+										+ " "
+										+ String.valueOf(appWidgetIds[i])
+										+ " "
+										+ String.valueOf(getBoolPref(
+												context,
+												"alarm_set_"
+														+ String.valueOf(appWidgetIds[i]))));
 					} else {
-						Log.d("ALARM STATUS", String.valueOf(getBoolPref(
-								context, "alarm_set_" + appWidgetIds[i])));
+						Log.d("ALARM STATUS",
+								String.valueOf(getBoolPref(
+										context,
+										"alarm_set_"
+												+ String.valueOf(appWidgetIds[i]))));
 					}
 				}
+
 				if (themeNumber == 1) {
 					remoteViews = new RemoteViews(context.getPackageName(),
 							R.layout.widget_layout);
@@ -226,8 +260,9 @@ public class WidgetProvider extends AppWidgetProvider {
 						appWidgetIds[i]);
 				serviceIntent.setData(Uri.parse(serviceIntent
 						.toUri(Intent.URI_INTENT_SCHEME)));
+
 				PendingIntent pendingServiceIntent = PendingIntent.getService(
-						context, 0, serviceIntent,
+						context, appWidgetIds[i], serviceIntent,
 						PendingIntent.FLAG_UPDATE_CURRENT);
 
 				if (themeNumber == 1)
@@ -252,7 +287,7 @@ public class WidgetProvider extends AppWidgetProvider {
 				historyIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
 						appWidgetIds[i]);
 				PendingIntent HistoryIntent = PendingIntent.getBroadcast(
-						context, 0, historyIntent,
+						context, appWidgetIds[i], historyIntent,
 						PendingIntent.FLAG_UPDATE_CURRENT);
 
 				if (themeNumber == 1)
@@ -272,13 +307,15 @@ public class WidgetProvider extends AppWidgetProvider {
 				super.onUpdate(context, appWidgetManager, appWidgetIds);
 			}
 		} catch (Exception e) {
-			Log.d("Widget Response False", e.toString());
+			Log.d("UPDATE FAILED " + String.valueOf(appWidgetId), e.toString());
 		}
 	}
 
 	@SuppressWarnings("deprecation")
 	private RemoteViews updateWidgetListView(Context context, int appWidgetId) {
 		themeNumber = getPref(context, "theme_" + appWidgetId);
+		Log.d("updateAppWidget_" + String.valueOf(appWidgetId), "for theme_"
+				+ String.valueOf(themeNumber));
 		// which layout to show on widget
 		RemoteViews remoteViews;
 
@@ -343,9 +380,11 @@ public class WidgetProvider extends AppWidgetProvider {
 
 	public static void updateAppWidget(Context context,
 			AppWidgetManager appWidgetManager, int appWidgetId) {
-		Log.d("log", "Entered update cycle");
+		Log.d("updateAppWidget_" + String.valueOf(appWidgetId), "for theme_"
+				+ String.valueOf(themeNumber));
 		// Unimportant for these purposes
 		RemoteViews remoteViews;
+		themeNumber = getPref(context, "theme_" + appWidgetId);
 		if (themeNumber == 1) {
 			remoteViews = new RemoteViews(context.getPackageName(),
 					R.layout.widget_layout);
@@ -377,6 +416,8 @@ public class WidgetProvider extends AppWidgetProvider {
 				AppWidgetManager.EXTRA_APPWIDGET_ID,
 				AppWidgetManager.INVALID_APPWIDGET_ID);
 		// if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+		Log.d("RECIEVE_FEED_ME " + String.valueOf(appWidgetId),
+				String.valueOf(intent.getAction()));
 		super.onReceive(context, intent);
 		// }
 		themeNumber = getPref(context, "theme_" + appWidgetId);
@@ -424,6 +465,7 @@ public class WidgetProvider extends AppWidgetProvider {
 			Intent historyintent = new Intent(context, HistoryActivity.class);
 			historyintent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
 					appWidgetId);
+			historyintent.putExtra("TopicAdded", Boolean.FALSE);
 			historyintent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			context.startActivity(historyintent);
 		}
@@ -432,19 +474,17 @@ public class WidgetProvider extends AppWidgetProvider {
 			// call the shared
 			// clock update method.
 			if (ni != null) {
-				Log.d("CLOCK_WIDGET_UPDATE", "Yes");
-				ComponentName thisAppWidget = new ComponentName(
-						context.getPackageName(), getClass().getName());
-				AppWidgetManager appWidgetManager = AppWidgetManager
-						.getInstance(context);
-				int ids[] = appWidgetManager.getAppWidgetIds(thisAppWidget);
-				for (int appWidgetID : ids) {
-					new WidgetProvider().onUpdate(context,
-							AppWidgetManager.getInstance(context),
-							new int[] { appWidgetID });
-				}
+				Bundle extra = intent.getExtras();
+				appWidgetId = extra.getInt("id");
+				Log.d("CLOCK_WIDGET_UPDATE", String.valueOf(appWidgetId)
+						+ "_Yes");
+				new WidgetProvider().onUpdate(context,
+						AppWidgetManager.getInstance(context),
+						new int[] { appWidgetId });
+				// }
 			} else
-				Log.d("CLOCK_WIDGET_UPDATE", "No Connection");
+				Log.d("CLOCK_WIDGET_UPDATE", String.valueOf(appWidgetId)
+						+ "_No Connection");
 		}
 	}
 
