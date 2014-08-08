@@ -41,6 +41,7 @@
                 <action android:name="com.refresh.widget.CLOCK_WIDGET_UPDATE" >
                 </action>
                 <action android:name="com.feed.me.history" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
             <!-- linking up xml file of appwidget-provider to AppWidgetProvider -->
             <meta-data
@@ -54,14 +55,14 @@
 
         <!--
             Configuration activity which gets launched  on widget being
-            placed on homescreen for first time
+            placed on homescreen for first time
         -->
         <activity android:name="com.feed.me.HistoryActivity" />
         <activity android:name="com.feed.me.ConfigActivity" >
 
             <!--
                  This intent is required to be recognized
-                 this activity as appwidget configuration activity
+                 this activity as appwidget configuration activity
             -->
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />

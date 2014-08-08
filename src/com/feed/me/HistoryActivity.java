@@ -1,28 +1,18 @@
 package com.feed.me;
 
-import android.app.Activity;
-import android.net.Uri;
-import android.os.Bundle;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import org.json.JSONArray;
 
 import android.app.ListActivity;
 import android.appwidget.AppWidgetManager;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.CharArrayBuffer;
-import android.database.ContentObserver;
 import android.database.Cursor;
-import android.database.DataSetObserver;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;

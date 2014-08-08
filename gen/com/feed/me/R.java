@@ -664,6 +664,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int max_hint=0x7f0c000f;
         public static final int max_history=0x7f0c000c;
         public static final int max_per_history=0x7f0c000d;
+        public static final int notification_ticker_text=0x7f0c0013;
         public static final int page_1=0x7f0c0003;
         public static final int page_2=0x7f0c0004;
         public static final int page_3=0x7f0c0005;

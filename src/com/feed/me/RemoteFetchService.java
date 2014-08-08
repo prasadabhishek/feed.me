@@ -9,7 +9,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.ProgressDialog;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.ContentValues;
@@ -27,11 +26,9 @@ import android.preference.PreferenceManager;
 import android.provider.Browser;
 import android.text.Html;
 import android.util.Log;
-import android.widget.RemoteViews;
 
 import com.androidquery.AQuery;
 import com.androidquery.callback.AjaxStatus;
-import com.feed.me.R;
 
 public class RemoteFetchService extends Service {
 

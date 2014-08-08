@@ -20,5 +20,5 @@
     <string name="customize">Customize History</string>
     <string name="title_activity_add">Add Topics</string>
     <string name="hello_world">Hello world!</string>
-
+	<string name="notification_ticker_text">you have been fed !</string>
 </resources>

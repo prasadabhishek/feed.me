@@ -10,8 +10,6 @@ import android.os.IBinder;
 import android.text.format.DateFormat;
 import android.widget.RemoteViews;
 
-import com.feed.me.R;
-
 public class AlarmService extends Service {
 	@Override
 	public void onCreate() {

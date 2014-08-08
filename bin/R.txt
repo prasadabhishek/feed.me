@@ -229,6 +229,7 @@ int string history_hint 0x7f0c000e
 int string max_hint 0x7f0c000f
 int string max_history 0x7f0c000c
 int string max_per_history 0x7f0c000d
+int string notification_ticker_text 0x7f0c0013
 int string page_1 0x7f0c0003
 int string page_2 0x7f0c0004
 int string page_3 0x7f0c0005

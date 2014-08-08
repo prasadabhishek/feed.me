@@ -1,23 +1,17 @@
 package com.feed.me;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Random;
 
 import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Typeface;
-import android.graphics.Paint.Align;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -25,10 +19,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.RemoteViews;
-import android.widget.Toast;
-
-import com.feed.me.R;
-import com.feed.me.ConfigActivity;
 
 public class WidgetProvider extends AppWidgetProvider {
 
@@ -122,44 +112,40 @@ public class WidgetProvider extends AppWidgetProvider {
 				TIME.set(Calendar.MILLISECOND, 0);
 
 				if (update) {
-					if (!getBoolPref(context, "alarm_set_" + appWidgetIds[i])) {
-						Log.d("ALARM SIGNAL", String.valueOf(updateInterval));
-						Log.d("ALARM STATUS",
-								String.valueOf(getBoolPref(
-										context,
-										"alarm_set_"
-												+ String.valueOf(appWidgetIds[i]))));
+					// if (!getBoolPref(context, "alarm_set_" +
+					// appWidgetIds[i])) {
+					Log.d("ALARM SIGNAL", String.valueOf(updateInterval));
+					Log.d("ALARM STATUS",
+							String.valueOf(getBoolPref(context, "alarm_set_"
+									+ String.valueOf(appWidgetIds[i]))));
 
-						AlarmManager alarmManager = (AlarmManager) context
-								.getSystemService(Context.ALARM_SERVICE);
-						alarmManager
-								.setRepeating(
-										AlarmManager.RTC_WAKEUP,
-										System.currentTimeMillis()
-												+ (updateInterval * 60000),
-										(updateInterval * 60000),
-										createClockTickIntent(context,
-												appWidgetIds[i]));
-						setBoolPref(context,
-								"alarm_set_" + String.valueOf(appWidgetIds[i]),
-								Boolean.TRUE);
-						Log.d("ALARM SET ",
-								String.valueOf(updateInterval)
-										+ " "
-										+ String.valueOf(appWidgetIds[i])
-										+ " "
-										+ String.valueOf(getBoolPref(
-												context,
-												"alarm_set_"
-														+ String.valueOf(appWidgetIds[i]))));
-					} else {
-						Log.d("ALARM STATUS",
-								String.valueOf(getBoolPref(
-										context,
-										"alarm_set_"
-												+ String.valueOf(appWidgetIds[i]))));
-					}
+					AlarmManager alarmManager = (AlarmManager) context
+							.getSystemService(Context.ALARM_SERVICE);
+					alarmManager.cancel(createClockTickIntent(context,
+							appWidgetIds[i]));
+					alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+							System.currentTimeMillis()
+									+ (updateInterval * 60000),
+							(updateInterval * 60000),
+							createClockTickIntent(context, appWidgetIds[i]));
+					setBoolPref(context,
+							"alarm_set_" + String.valueOf(appWidgetIds[i]),
+							Boolean.TRUE);
+					Log.d("ALARM SET ",
+							String.valueOf(updateInterval)
+									+ " "
+									+ String.valueOf(appWidgetIds[i])
+									+ " "
+									+ String.valueOf(getBoolPref(
+											context,
+											"alarm_set_"
+													+ String.valueOf(appWidgetIds[i]))));
+				} else {
+					Log.d("ALARM STATUS",
+							String.valueOf(getBoolPref(context, "alarm_set_"
+									+ String.valueOf(appWidgetIds[i]))));
 				}
+				// }
 
 				if (themeNumber == 1) {
 					remoteViews = new RemoteViews(context.getPackageName(),
@@ -409,6 +395,7 @@ public class WidgetProvider extends AppWidgetProvider {
 	 * right now happens on ListProvider as it takes RemoteFetchService
 	 * listItemList as data
 	 */
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onReceive(Context context, Intent intent) {
 
@@ -478,10 +465,36 @@ public class WidgetProvider extends AppWidgetProvider {
 				appWidgetId = extra.getInt("id");
 				Log.d("CLOCK_WIDGET_UPDATE", String.valueOf(appWidgetId)
 						+ "_Yes");
+				/* call update */
 				new WidgetProvider().onUpdate(context,
 						AppWidgetManager.getInstance(context),
 						new int[] { appWidgetId });
-				// }
+				/* notify */
+				NotificationManager notificationManager = (NotificationManager) context
+						.getSystemService(context.NOTIFICATION_SERVICE);
+
+				Notification updateComplete = new Notification();
+				updateComplete.icon = R.drawable.ic_launcher;
+				updateComplete.tickerText = context
+						.getText(R.string.notification_ticker_text);
+				updateComplete.when = System.currentTimeMillis();
+				updateComplete.flags = Notification.DEFAULT_LIGHTS
+						| Notification.FLAG_AUTO_CANCEL;
+
+				Intent notificationIntent = new Intent(Intent.ACTION_MAIN);
+				notificationIntent.addCategory(Intent.CATEGORY_HOME);
+				notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+				PendingIntent contentIntent = PendingIntent.getActivity(
+						context, 0, notificationIntent, 0);
+
+				String contentTitle = "News Updated";
+				String contentText = "Click to dismiss";
+				updateComplete.setLatestEventInfo(context, contentTitle,
+						contentText, contentIntent);
+
+				notificationManager.notify(123, updateComplete);
+
 			} else
 				Log.d("CLOCK_WIDGET_UPDATE", String.valueOf(appWidgetId)
 						+ "_No Connection");
