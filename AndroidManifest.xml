@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.feed.me"
-    android:versionCode="5"
-    android:versionName="1.5" >
+    android:versionCode="6"
+    android:versionName="1.6" >
 
     <uses-sdk
         android:minSdkVersion="11"
@@ -55,14 +55,14 @@
 
         <!--
             Configuration activity which gets launched  on widget being
-            placed on homescreen for first time
+            placed on homescreen for first time
         -->
         <activity android:name="com.feed.me.HistoryActivity" />
         <activity android:name="com.feed.me.ConfigActivity" >
 
             <!--
                  This intent is required to be recognized
-                 this activity as appwidget configuration activity
+                 this activity as appwidget configuration activity
             -->
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
